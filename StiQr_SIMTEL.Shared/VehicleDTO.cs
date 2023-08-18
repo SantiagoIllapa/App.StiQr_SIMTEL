@@ -14,6 +14,6 @@
 
         public string? Description { get; set; }
 
-        public UserDTO? User { get; set; }
+        //public UserDTO? User { get; set; }
     }
 }
