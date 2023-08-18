@@ -15,17 +15,21 @@ namespace StiQR_SIMTEL.Services
             {
                 using (var client = new HttpClient())
                 {
-                    string url = $"{_baseURL}/api/Users/GetAllUsers";
+                    string url = $"{_baseURL}/api/Users/GetAll";
                     var apiResponse = await client.GetAsync(url);
                     if (apiResponse.StatusCode == System.Net.HttpStatusCode.OK) { }
                     {
                         var response = await apiResponse.Content.ReadAsStringAsync();
                         var deserializeResponse = JsonConvert.DeserializeObject<ResponseAPI<List<UserDTO>>>(response);
-                        if (deserializeResponse.IsCorrect)
+                        if( deserializeResponse != null )
                         {
-                            returnResponse = deserializeResponse.Value;
-                            Console.Write(returnResponse.ToString());
+                            if (deserializeResponse.IsCorrect)
+                            {
+                                returnResponse = deserializeResponse.Value;
+                                Console.Write(returnResponse.ToString());
+                            }
                         }
+                        
                     }
                 }
             }

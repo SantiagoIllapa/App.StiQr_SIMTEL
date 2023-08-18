@@ -9,39 +9,37 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class VehiclesController : ControllerBase
     {
         private readonly StiqrDbContext _context;
 
-        public UsersController(StiqrDbContext context)
+        public VehiclesController(StiqrDbContext context)
         {
             _context = context;
         }
 
         [HttpGet]
         [Route("GetAll")]
-        public async Task<IActionResult> GetUsers()
+        public async Task<IActionResult> GetVehicles()
         {
-            var responseAPI = new ResponseAPI<List<UserDTO>>();
-            var listUserDTO = new List<UserDTO>();
+            var responseAPI = new ResponseAPI<List<VehicleDTO>>();
+            var listVehicleDTO = new List<VehicleDTO>();
 
             try
             {
-                foreach (var user in await _context.Users.ToListAsync())
+                foreach (var vehicle in await _context.Vehicles.ToListAsync())
                 {
-                    listUserDTO.Add(new UserDTO
+                    listVehicleDTO.Add(new VehicleDTO
                     {
-                        Id = user.Id,
-                        Name = user.Name,
-                        LastName = user.LastName,
-                        Cidentity = user.Cidentity,
-                        Email = user.Email,
-                        Phone = user.Phone,
-                        Password = user.Password,
+                        Id = vehicle.Id,
+                        Alias = vehicle.Alias,
+                        Description = vehicle.Description,
+                        Plate   = vehicle.Plate,
+                        IdUser  = vehicle.IdUser,
                     });
                 }
                 responseAPI.IsCorrect = true;
-                responseAPI.Value = listUserDTO;
+                responseAPI.Value = listVehicleDTO;
 
             }
             catch (Exception ex)
@@ -54,24 +52,24 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
 
         [HttpGet]
         [Route("GetByID/{id}")]
-        public async Task<IActionResult> GetUser(int id)
+        public async Task<IActionResult> GetVehicle(int id)
         {
-            var responseAPI = new ResponseAPI<UserDTO>();
-            var userDTO = new UserDTO();
+            var responseAPI = new ResponseAPI<VehicleDTO>();
+            var vehicleDTO = new VehicleDTO();
 
             try
             {
-                var dbUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
-                if (dbUser != null)
+                var dbVehicle = await _context.Vehicles.FirstOrDefaultAsync(x => x.Id == id);
+                if (dbVehicle != null)
                 {
-                    userDTO.Id = dbUser.Id;
-                    userDTO.Name = dbUser.Name;
-                    userDTO.LastName = dbUser.LastName;
-                    userDTO.Cidentity = dbUser.Cidentity;
-                    userDTO.Email = dbUser.Email;
-                    userDTO.Phone = dbUser.Phone;
+                    vehicleDTO.Id= dbVehicle.Id;
+                    vehicleDTO.Alias= dbVehicle.Alias;
+                    vehicleDTO.Description= dbVehicle.Description;
+                    vehicleDTO.Plate = dbVehicle.Plate;
+                    vehicleDTO.IdUser = dbVehicle.IdUser;
+
                     responseAPI.IsCorrect = true;
-                    responseAPI.Value = userDTO;
+                    responseAPI.Value = vehicleDTO;
                 }
                 else
                 {
@@ -92,30 +90,30 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
 
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> CreateUser(UserDTO userDTO)
+        public async Task<IActionResult> CreateVehicle(VehicleDTO vehicleDTO)
         {
             var responseAPI = new ResponseAPI<int>();
             try
             {
-                var dbUser = new User
+                var dbVehicle = new Vehicle
                 {
-                    Name = userDTO.Name,
-                    LastName = userDTO.LastName,
-                    Cidentity = userDTO.Cidentity,
-                    Email = userDTO.Email,
-                    Phone = userDTO.Phone,
-                    Password = userDTO.Password,
+                    Plate= vehicleDTO.Plate,
+                    Alias       = vehicleDTO.Alias,
+                    Description= vehicleDTO.Description,
+                    IdUser= vehicleDTO.IdUser,
+                               
                 };
-                _context.Users.Add(dbUser);
+                _context.Vehicles.Add(dbVehicle);
                 await _context.SaveChangesAsync();
-                if (dbUser.Id != 0) {
+
+                if (dbVehicle.Id != 0) {
                     responseAPI.IsCorrect = true;
-                    responseAPI.Value = dbUser.Id;
+                    responseAPI.Value = dbVehicle.Id;
                 }
                 else
                 {
                     responseAPI.IsCorrect = false;
-                    responseAPI.Message = "No se pudo guardar el usuario";
+                    responseAPI.Message = "No se pudo guardar el Vehiculo";
                 }
 
             }
@@ -129,26 +127,24 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
 
         [HttpPut]
         [Route("Edit/{id}")]
-        public async Task<IActionResult> EditUser(UserDTO userDTO, int id)
+        public async Task<IActionResult> EditVehicle(VehicleDTO vehicileDTO, int id)
         {
             var responseAPI = new ResponseAPI<int>();
             try
             {
-                var dbUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
-                if (dbUser != null)
+                var dbVehicle = await _context.Vehicles.FirstOrDefaultAsync(x => x.Id == id);
+                if (dbVehicle != null)
                 {
-                    dbUser.Name = userDTO.Name;
-                    dbUser.LastName = userDTO.LastName;
-                    dbUser.Cidentity = userDTO.Cidentity;
-                    dbUser.Email = userDTO.Email;
-                    dbUser.Phone = userDTO.Phone;
-                    dbUser.Password = userDTO.Password;
+                    dbVehicle.Plate = vehicileDTO.Plate;
+                    dbVehicle.Description = vehicileDTO.Description;
+                    dbVehicle.Alias= vehicileDTO.Alias;
+                    dbVehicle.IdUser= vehicileDTO.IdUser;
 
-                    _context.Users.Update(dbUser);
+                    _context.Vehicles.Update(dbVehicle);
                     await _context.SaveChangesAsync();
 
                     responseAPI.IsCorrect = true;
-                    responseAPI.Value = dbUser.Id;
+                    responseAPI.Value = dbVehicle.Id;
                 }
                 else
                 {
@@ -167,15 +163,15 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
 
         [HttpDelete]
         [Route("Delete/{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteVehicle(int id)
         {
             var responseAPI = new ResponseAPI<int>();
             try
             {
-                var dbUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
-                if (dbUser != null)
+                var dbVehicle = await _context.Vehicles.FirstOrDefaultAsync(x => x.Id == id);
+                if (dbVehicle != null)
                 {
-                    _context.Users.Remove(dbUser);
+                    _context.Vehicles.Remove(dbVehicle);
                     await _context.SaveChangesAsync();
                     responseAPI.IsCorrect = true;
                 }

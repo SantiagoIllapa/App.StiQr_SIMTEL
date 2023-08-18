@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using StiQr_SIMTEL.Shared;
 
 namespace StiQr_SIMTEL.Server.Models;
 
@@ -210,4 +211,6 @@ public partial class StiqrDbContext : DbContext
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+    public DbSet<StiQr_SIMTEL.Shared.VehicleDTO> VehicleDTO { get; set; } = default!;
 }
