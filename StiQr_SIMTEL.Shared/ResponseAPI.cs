@@ -2,8 +2,8 @@
 {
     public class ResponseAPI<T>
     {
-        public bool IsCorrect { get; set; }
-        public T? Value { get; set; }
-        public string? Message { get; set; }
+        public bool IsSuccess { get; set; }
+        public T? Content { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 }

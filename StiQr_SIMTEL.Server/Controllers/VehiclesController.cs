@@ -38,14 +38,14 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
                         IdUser  = vehicle.IdUser,
                     });
                 }
-                responseAPI.IsCorrect = true;
-                responseAPI.Value = listVehicleDTO;
+                responseAPI.IsSuccess = true;
+                responseAPI.Content = listVehicleDTO;
 
             }
             catch (Exception ex)
             {
-                responseAPI.IsCorrect = false;
-                responseAPI.Message = ex.Message;
+                responseAPI.IsSuccess = false;
+                responseAPI.ErrorMessage = ex.Message;
             }
             return Ok(responseAPI);
         }
@@ -68,13 +68,13 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
                     vehicleDTO.Plate = dbVehicle.Plate;
                     vehicleDTO.IdUser = dbVehicle.IdUser;
 
-                    responseAPI.IsCorrect = true;
-                    responseAPI.Value = vehicleDTO;
+                    responseAPI.IsSuccess = true;
+                    responseAPI.Content = vehicleDTO;
                 }
                 else
                 {
-                    responseAPI.IsCorrect = false;
-                    responseAPI.Message = "No encontrado";
+                    responseAPI.IsSuccess = false;
+                    responseAPI.ErrorMessage = "No encontrado";
                 }
 
 
@@ -82,8 +82,8 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
             }
             catch (Exception ex)
             {
-                responseAPI.IsCorrect = false;
-                responseAPI.Message = ex.Message;
+                responseAPI.IsSuccess = false;
+                responseAPI.ErrorMessage = ex.Message;
             }
             return Ok(responseAPI);
         }
@@ -107,20 +107,20 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
                 await _context.SaveChangesAsync();
 
                 if (dbVehicle.Id != 0) {
-                    responseAPI.IsCorrect = true;
-                    responseAPI.Value = dbVehicle.Id;
+                    responseAPI.IsSuccess = true;
+                    responseAPI.Content = dbVehicle.Id;
                 }
                 else
                 {
-                    responseAPI.IsCorrect = false;
-                    responseAPI.Message = "No se pudo guardar el Vehiculo";
+                    responseAPI.IsSuccess = false;
+                    responseAPI.ErrorMessage = "No se pudo guardar el Vehiculo";
                 }
 
             }
             catch (Exception ex)
             {
-                responseAPI.IsCorrect = false;
-                responseAPI.Message = ex.Message;
+                responseAPI.IsSuccess = false;
+                responseAPI.ErrorMessage = ex.Message;
             }
             return Ok(responseAPI);
         }
@@ -143,20 +143,20 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
                     _context.Vehicles.Update(dbVehicle);
                     await _context.SaveChangesAsync();
 
-                    responseAPI.IsCorrect = true;
-                    responseAPI.Value = dbVehicle.Id;
+                    responseAPI.IsSuccess = true;
+                    responseAPI.Content = dbVehicle.Id;
                 }
                 else
                 {
-                    responseAPI.IsCorrect = false;
-                    responseAPI.Message = "Usuario no encontrado";
+                    responseAPI.IsSuccess = false;
+                    responseAPI.ErrorMessage = "Usuario no encontrado";
                 }
 
             }
             catch (Exception ex)
             {
-                responseAPI.IsCorrect = false;
-                responseAPI.Message = ex.Message;
+                responseAPI.IsSuccess = false;
+                responseAPI.ErrorMessage = ex.Message;
             }
             return Ok(responseAPI);
         }
@@ -173,19 +173,19 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
                 {
                     _context.Vehicles.Remove(dbVehicle);
                     await _context.SaveChangesAsync();
-                    responseAPI.IsCorrect = true;
+                    responseAPI.IsSuccess = true;
                 }
                 else
                 {
-                    responseAPI.IsCorrect = false;
-                    responseAPI.Message = "Usuario no encontrado";
+                    responseAPI.IsSuccess = false;
+                    responseAPI.ErrorMessage = "Usuario no encontrado";
                 }
 
             }
             catch (Exception ex)
             {
-                responseAPI.IsCorrect = false;
-                responseAPI.Message = ex.Message;
+                responseAPI.IsSuccess = false;
+                responseAPI.ErrorMessage = ex.Message;
             }
             return Ok(responseAPI);
         } 

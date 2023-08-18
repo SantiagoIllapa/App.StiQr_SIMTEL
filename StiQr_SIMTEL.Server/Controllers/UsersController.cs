@@ -40,14 +40,14 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
                         Password = user.Password,
                     });
                 }
-                responseAPI.IsCorrect = true;
-                responseAPI.Value = listUserDTO;
+                responseAPI.IsSuccess = true;
+                responseAPI.Content = listUserDTO;
 
             }
             catch (Exception ex)
             {
-                responseAPI.IsCorrect = false;
-                responseAPI.Message = ex.Message;
+                responseAPI.IsSuccess = false;
+                responseAPI.ErrorMessage = ex.Message;
             }
             return Ok(responseAPI);
         }
@@ -70,13 +70,13 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
                     userDTO.Cidentity = dbUser.Cidentity;
                     userDTO.Email = dbUser.Email;
                     userDTO.Phone = dbUser.Phone;
-                    responseAPI.IsCorrect = true;
-                    responseAPI.Value = userDTO;
+                    responseAPI.IsSuccess = true;
+                    responseAPI.Content = userDTO;
                 }
                 else
                 {
-                    responseAPI.IsCorrect = false;
-                    responseAPI.Message = "No encontrado";
+                    responseAPI.IsSuccess = false;
+                    responseAPI.ErrorMessage = "No encontrado";
                 }
 
 
@@ -84,8 +84,8 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
             }
             catch (Exception ex)
             {
-                responseAPI.IsCorrect = false;
-                responseAPI.Message = ex.Message;
+                responseAPI.IsSuccess = false;
+                responseAPI.ErrorMessage = ex.Message;
             }
             return Ok(responseAPI);
         }
@@ -109,20 +109,20 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
                 _context.Users.Add(dbUser);
                 await _context.SaveChangesAsync();
                 if (dbUser.Id != 0) {
-                    responseAPI.IsCorrect = true;
-                    responseAPI.Value = dbUser.Id;
+                    responseAPI.IsSuccess = true;
+                    responseAPI.Content = dbUser.Id;
                 }
                 else
                 {
-                    responseAPI.IsCorrect = false;
-                    responseAPI.Message = "No se pudo guardar el usuario";
+                    responseAPI.IsSuccess = false;
+                    responseAPI.ErrorMessage = "No se pudo guardar el usuario";
                 }
 
             }
             catch (Exception ex)
             {
-                responseAPI.IsCorrect = false;
-                responseAPI.Message = ex.Message;
+                responseAPI.IsSuccess = false;
+                responseAPI.ErrorMessage = ex.Message;
             }
             return Ok(responseAPI);
         }
@@ -147,20 +147,20 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
                     _context.Users.Update(dbUser);
                     await _context.SaveChangesAsync();
 
-                    responseAPI.IsCorrect = true;
-                    responseAPI.Value = dbUser.Id;
+                    responseAPI.IsSuccess = true;
+                    responseAPI.Content = dbUser.Id;
                 }
                 else
                 {
-                    responseAPI.IsCorrect = false;
-                    responseAPI.Message = "Usuario no encontrado";
+                    responseAPI.IsSuccess = false;
+                    responseAPI.ErrorMessage = "Usuario no encontrado";
                 }
 
             }
             catch (Exception ex)
             {
-                responseAPI.IsCorrect = false;
-                responseAPI.Message = ex.Message;
+                responseAPI.IsSuccess = false;
+                responseAPI.ErrorMessage = ex.Message;
             }
             return Ok(responseAPI);
         }
@@ -177,19 +177,19 @@ namespace StiQR_SIMTEL_BackEnd.Controllers
                 {
                     _context.Users.Remove(dbUser);
                     await _context.SaveChangesAsync();
-                    responseAPI.IsCorrect = true;
+                    responseAPI.IsSuccess = true;
                 }
                 else
                 {
-                    responseAPI.IsCorrect = false;
-                    responseAPI.Message = "Usuario no encontrado";
+                    responseAPI.IsSuccess = false;
+                    responseAPI.ErrorMessage = "Usuario no encontrado";
                 }
 
             }
             catch (Exception ex)
             {
-                responseAPI.IsCorrect = false;
-                responseAPI.Message = ex.Message;
+                responseAPI.IsSuccess = false;
+                responseAPI.ErrorMessage = ex.Message;
             }
             return Ok(responseAPI);
         } 

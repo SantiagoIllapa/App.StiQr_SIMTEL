@@ -6,7 +6,7 @@ namespace StiQR_SIMTEL.Services
     {
 
         public Task<List<UserDTO>> GetAllUsers();
-
+        public Task<ResponseAPI<bool>> CreateUser(UserDTO userRequest); 
 
     }
 }
