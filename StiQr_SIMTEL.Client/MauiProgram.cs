@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using StiQr_SIMTEL.Client.Data;
-using StiQR_SIMTEL.Services;
+using StiQr_SIMTEL.Client.Services;
 
 namespace StiQr_SIMTEL.Client
 {
@@ -22,7 +22,7 @@ namespace StiQr_SIMTEL.Client
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
-            builder.Services.AddSingleton<IUserService, UserService>();
+            builder.Services.AddSingleton<IAppService, AppService>();
             builder.Services.AddSingleton<WeatherForecastService>();
 
             return builder.Build();

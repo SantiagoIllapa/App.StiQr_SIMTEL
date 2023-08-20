@@ -1,0 +1,33 @@
+﻿@page "/";
+@using Newtonsoft.Json;
+@using StiQr_SIMTEL.Client.Models;
+@using System.IdentityModel.Tokens.Jwt;
+@inject NavigationManager NavManager;
+<h3>AppLaunch</h3>
+Loading.....
+@code {
+    protected async override Task OnInitializedAsync()
+    {
+        string userDetails = await SecureStorage.GetAsync(nameof(Setting.UserBasicDetail));
+
+        if (!string.IsNullOrWhiteSpace(userDetails))
+        {
+            var userBasicDetail = JsonConvert.DeserializeObject<UserBasicDetail>(userDetails);
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(userBasicDetail.Token) as JwtSecurityToken;
+            if (jsonToken.ValidTo < DateTime.UtcNow)
+            {
+                NavManager.NavigateTo("/LoginPage");
+            }
+            else
+            {
+                Setting.UserBasicDetail = userBasicDetail;
+                NavManager.NavigateTo("/dashboard");
+            }
+        }
+        else
+        {
+            NavManager.NavigateTo("/LoginPage");
+        }
+    }
+}

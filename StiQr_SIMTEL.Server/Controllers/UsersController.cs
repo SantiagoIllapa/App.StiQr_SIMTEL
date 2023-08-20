@@ -83,7 +83,7 @@ namespace StiQr_SIMTEL.Server.Controllers
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier,user.Id),
-                    new Claim(ClaimTypes.Name,user.Email)
+                    new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
                 };
 #pragma warning restore CS8604 // Posible argumento de referencia nulo
                 var tokenDescription = new SecurityTokenDescriptor
@@ -104,7 +104,7 @@ namespace StiQr_SIMTEL.Server.Controllers
         }
 
 
-
+        [AllowAnonymous] 
         [HttpPost("RegisterUser")]
         public async Task<IActionResult> RegisterUser(RegisterUserDTO registerUserDTO)
         {
@@ -112,10 +112,9 @@ namespace StiQr_SIMTEL.Server.Controllers
             {
                 FirstName = registerUserDTO.FirstName,
                 LastName = registerUserDTO.LastName,
-                Email = registerUserDTO.Email,
                 UserName = registerUserDTO.Email,
-                Gender = registerUserDTO.Gender,
-                Address = registerUserDTO.Address,
+                Email = registerUserDTO.Email,
+                
             };
             var response = await _userManager.CreateAsync(userToBeCreated, registerUserDTO.Password);
             if (response.Succeeded)

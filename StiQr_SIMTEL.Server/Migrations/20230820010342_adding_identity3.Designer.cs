@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StiQr_SIMTEL.Server.Context;
 
@@ -11,9 +12,11 @@ using StiQr_SIMTEL.Server.Context;
 namespace StiQr_SIMTEL.Server.Migrations
 {
     [DbContext(typeof(StiQrDbContext))]
-    partial class StiQrDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230820010342_adding_identity3")]
+    partial class adding_identity3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

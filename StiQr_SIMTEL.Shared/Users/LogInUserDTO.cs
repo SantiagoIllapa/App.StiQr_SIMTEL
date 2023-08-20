@@ -7,16 +7,11 @@ using System.Threading.Tasks;
 
 namespace StiQr_SIMTEL.Shared.Users
 {
-    public class RegisterUserDTO
+    public class LogInUserDTO
     {
         [Required]
-        public string FirstName { get; set; } = null!;
-        [Required]
-        public string LastName { get; set; } = null!;
-        [Required]
-        public string Email { get; set; } = null!;
+        public string UserName { get; set; } = null!;
         [Required]
         public string Password { get; set; } = null!;
-        
     }
 }

@@ -5,11 +5,11 @@ VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StiQr_SIMTEL.Server", "StiQr_SIMTEL.Server\StiQr_SIMTEL.Server.csproj", "{9C319345-AAC6-426C-9122-7F119BABB5D7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StiQr_SIMTEL.Client", "StiQr_SIMTEL.Client\StiQr_SIMTEL.Client.csproj", "{C5812E9A-8DBA-4C49-AA1A-1FACA08B29CD}"
-EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "StiQr_SIMTEL.DataBase", "StiQr_SIMTEL.DataBase\StiQr_SIMTEL.DataBase.sqlproj", "{6C5CCA88-B54B-47E2-BCBE-53FF94E11FB8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StiQr_SIMTEL.Shared", "StiQr_SIMTEL.Shared\StiQr_SIMTEL.Shared.csproj", "{CA4D5D98-9A33-4B96-8A36-22C21AB85E22}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StiQr_SIMTEL.Client", "StiQr_SIMTEL.Client\StiQr_SIMTEL.Client.csproj", "{32A5EB2D-A7ED-43DC-AF92-22C4E7A5A29B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,10 +21,6 @@ Global
 		{9C319345-AAC6-426C-9122-7F119BABB5D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C319345-AAC6-426C-9122-7F119BABB5D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C319345-AAC6-426C-9122-7F119BABB5D7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C5812E9A-8DBA-4C49-AA1A-1FACA08B29CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C5812E9A-8DBA-4C49-AA1A-1FACA08B29CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C5812E9A-8DBA-4C49-AA1A-1FACA08B29CD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C5812E9A-8DBA-4C49-AA1A-1FACA08B29CD}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{6C5CCA88-B54B-47E2-BCBE-53FF94E11FB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6C5CCA88-B54B-47E2-BCBE-53FF94E11FB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C5CCA88-B54B-47E2-BCBE-53FF94E11FB8}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
@@ -35,6 +31,12 @@ Global
 		{CA4D5D98-9A33-4B96-8A36-22C21AB85E22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA4D5D98-9A33-4B96-8A36-22C21AB85E22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA4D5D98-9A33-4B96-8A36-22C21AB85E22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32A5EB2D-A7ED-43DC-AF92-22C4E7A5A29B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32A5EB2D-A7ED-43DC-AF92-22C4E7A5A29B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32A5EB2D-A7ED-43DC-AF92-22C4E7A5A29B}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{32A5EB2D-A7ED-43DC-AF92-22C4E7A5A29B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32A5EB2D-A7ED-43DC-AF92-22C4E7A5A29B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32A5EB2D-A7ED-43DC-AF92-22C4E7A5A29B}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
