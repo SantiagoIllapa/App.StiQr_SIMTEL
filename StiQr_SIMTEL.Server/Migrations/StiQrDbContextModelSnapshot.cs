@@ -206,6 +206,7 @@ namespace StiQr_SIMTEL.Server.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Gender")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 

@@ -15,7 +15,7 @@ namespace StiQr_SIMTEL.Server.Services
             var response = new ResponseAPI<string>();
             try
             {
-
+               
                 await _dbContext.AddAsync(new AgentDTO
                 {
                     AgentName = agentDTO.AgentName,

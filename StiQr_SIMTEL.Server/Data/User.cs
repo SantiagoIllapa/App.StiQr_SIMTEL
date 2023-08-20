@@ -10,7 +10,7 @@ namespace StiQr_SIMTEL.Server.Data
         [MaxLength(50)]
         public string LastName { get; set; } = null!;
         [MaxLength(50)]
-        public string?  Gender { get; set; }
+        public string  Gender { get; set; } = null!;
         [MaxLength(10)]
         [MinLength(10)]
         public string? IdCard { get; set; }

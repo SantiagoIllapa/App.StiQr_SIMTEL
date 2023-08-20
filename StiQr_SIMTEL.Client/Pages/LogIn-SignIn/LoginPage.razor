@@ -1,75 +1,44 @@
-﻿@page "/LoginPage"
-@using Newtonsoft.Json;
-@using StiQr_SIMTEL.Client.Models;
-@using StiQr_SIMTEL.Client.Services;
-@using StiQr_SIMTEL.Shared.Users;
-@using System.IdentityModel.Tokens.Jwt;
-@using System.Security.Claims;
-@inject IAppService AppService;
-@inject NavigationManager NavManager;
-<h1>Login</h1>
+﻿@page "/loginPage"
 
-<EditForm Model="@loginModel" OnValidSubmit="Submit">
-    <DataAnnotationsValidator />
-    <div class="form-group">
-        <label>Correo Electrónico</label>
-        <input type="email" @bind-value="loginModel.UserName" class="form-control" placeholder="example@gmail.com">
-        <ValidationMessage For="@(()=> loginModel.UserName)" />
+<img class="imgbackground" src="/img/background.png" alt="background" />
+<div class="login">
+    
+    <div>
+        
+        <div class="logo">
+            <div class="imageContainer">
+                <img src="/Resources/Images/logo.png" alt="Logo" />
+            </div>
+            <div class="textContainer">
+                <p class="title">Bienvenido!</p>
+                <p class="subtitle">Ingresa tu cuenta!</p>
+            </div>
+        </div>
+        <div class="formContainer">
+            <form>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required />
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" name="password" required />
+                </div>
+                <div class="passwordLose">
+                    <a href="/forgotPassPage">¿Olvidaste tu contraseña?</a>
+                </div>
+                <button type="submit">Ingresar</button>
+            </form>
+            <div class="sign-up">
+                ¿No tienes cuenta? <a href="/siginPage">Regístrate</a>
+            </div>
+        </div>
+    
     </div>
-    <div class="mt-2 form-group">
-        <label>Contraseña</label>
-        <input type="password" @bind-value="loginModel.Password" class="form-control" placeholder="******">
-        <ValidationMessage For="@(()=> loginModel.Password)" />
-    </div>
-    <div class="mt-2 text-end">
-        <NavLink class="nav-link" href="/SignInPage">
-            <span> Aún no estás registrado?</span>
-        </NavLink>
-    </div>
-    <div class=" text-center mt-2">
-        <button class="btn btn-primary" type="submit">
-            <span class="@_spinnerClass" role="status" aria-hiden="true"></span>
-            Iniciar sesión
-        </button>
-
-    </div>
-
-</EditForm>
-
-
+   
+</div>
+    
 
 @code {
-    LogInUserDTO loginModel = new ();
-    private string _spinnerClass = "";
-    private async void Submit()
-    {
-        _spinnerClass = "spinner-border spinner-border-sm";
-        var response = await AppService.AuthenticateUser(loginModel);
-        if (!string.IsNullOrWhiteSpace(response))
-        {
-            var handler = new JwtSecurityTokenHandler();
-            var jsonToken = handler.ReadToken(response) as JwtSecurityToken;
-            string userID = jsonToken.Claims.FirstOrDefault(f => f.Type == JwtRegisteredClaimNames.NameId).Value;
-            string name = jsonToken.Claims.FirstOrDefault(f => f.Type == JwtRegisteredClaimNames.UniqueName).Value;
-            string email = loginModel.UserName;
 
-            var userBasicDetail = new UserBasicDetail
-                {
-                    Email = email,
-                    Name = name,
-                    Token = response,
-                    UserID = userID
-                };
-            string userBasicInfoStr = JsonConvert.SerializeObject(userBasicDetail);
-            await SecureStorage.SetAsync(nameof(Setting.UserBasicDetail), userBasicInfoStr);
-            Setting.UserBasicDetail = userBasicDetail;
-            NavManager.NavigateTo("/dashboard");
-        }
-        else
-        {
-            await App.Current.MainPage.DisplayAlert("Oops", "Usuario o contraseña no valido", "OK");
-        }
-        _spinnerClass = "";
-        this.StateHasChanged();
-    }
 }
