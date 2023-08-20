@@ -1,47 +1,65 @@
-﻿@page "/siginPage"
+﻿@page "/SignInPage"
+@using StiQr_SIMTEL.Client.Models;
+@using StiQr_SIMTEL.Client.Services;
+@using StiQr_SIMTEL.Shared.Users;
+@inject IAppService AppService;
+<h1>Registro</h1>
 
-<img class="imgbackground" src="/img/background.png" alt="background" />
-<div class="login">
-    
-    <div>
-        <div class="logo">
-            
-            <div class="textContainer">
-                <p class="title">Registro</p>
-                <p class="subtitle">Crea una nueva cuenta</p>
-            </div>
-        </div>
-        <div class="formContainer">
-            <form>
-                <div class="form-group">
-                    <label for="name">Nombre de usuario</label>
-                    <input type="text" id="name" name="Nombre" required />
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required />
-                </div>
-                <div class="form-group">
-                    <label for="phone">Celular</label>
-                    <input type="number" id="phone" name="Celuar" pattern="[0-9]*" inputmode="numeric" oninput="validarNumero(event)" required />
-                </div>
-                <div class="form-group">
-                    <label for="password">Contraseña:</label>
-                    <input type="password" id="password" name="password" required />
-                </div>
-               
-                <button type="submit">Registrarse</button>
-            </form>
-            <div class="sign-up">
-              ¿Ya tienes una cuenta? <a href="/loginPage">Ingresa</a>
-            </div>
-        </div>
-    
+<EditForm Model="@registrationModel" OnValidSubmit="Submit">
+    <DataAnnotationsValidator />
+    <div class="form-group">
+        <label>Nombre</label>
+        <input @bind-value="registrationModel.FirstName" class="form-control" placeholder="example">
+        <ValidationMessage For="@(()=> registrationModel.FirstName)" />
     </div>
-   
-</div>
-    
+    <div class="form-group">
+        <label>Apellido</label>
+        <input  @bind-value="registrationModel.LastName" class="form-control" placeholder="example">
+        <ValidationMessage For="@(()=> registrationModel.LastName)" />
+    </div>
+
+    <div class="form-group">
+        <label>Correo Electrónico</label>
+        <input type="email" @bind-value="registrationModel.Email" class="form-control" placeholder="example@gmail.com">
+        <ValidationMessage For="@(()=> registrationModel.Email)" />
+    </div>
+    <div class="mt-2 form-group">
+        <label>Contraseña</label>
+        <input type="password" @bind-value="registrationModel.Password" class="form-control" placeholder="*******">
+        <ValidationMessage For="@(()=> registrationModel.Password)" />
+    </div>
+    <div class="mt-2 text-end">
+        <NavLink class="nav-link" href="/LoginPage">
+            <span> Ya tienes cuenta?</span>
+        </NavLink>
+    </div>
+    <div class=" text-center mt-2">
+        <button class="btn btn-primary" type="submit">
+            <span class="@_spinnerClass" role="status" aria-hiden="true"></span>
+            Registrarse
+        </button>
+    </div>
+
+</EditForm>
+
+
 
 @code {
-
+    RegisterUserDTO registrationModel = new();
+    private string _spinnerClass = "";
+    private async void Submit()
+    {
+        _spinnerClass = "spinner-border spinner-border-sm";
+        var response = await AppService.RegisterUser(registrationModel);
+        if (response.IsSuccess)
+        {
+            await App.Current.MainPage.DisplayAlert("Success", "Usuario Registrado", "OK");
+        }
+        else
+        {
+            await App.Current.MainPage.DisplayAlert("Oops", response.ErrorMessage, "OK");
+        }
+        _spinnerClass = "";
+        this.StateHasChanged();
+    }
 }

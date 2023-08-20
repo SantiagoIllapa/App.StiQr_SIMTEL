@@ -1,49 +1,6 @@
-﻿@page "/"
-@using StiQR_SIMTEL.Services
-@using StiQr_SIMTEL.Shared
-
-@inject IUserService UserService;
+﻿@page "/dashboard"
+@using StiQr_SIMTEL.Client.Models;
 <h1>Hello, world!</h1>
 
 Generación de la aplicación para SIMTEL
-
-@if(_userList == null)
-{
-    <p>Cargando....</p>
-}
-else
-{
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Cedula</th>
-                    <th>Email</th>
-                    <th>Telefono</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach(var user in _userList)
-                {
-                    <tr>
-                        <td>@user.Name</td>
-                        <td>@user.LastName</td>
-                        <td>@user.Cidentity</td>
-                        <td>@user.Email</td>
-                        <td>@user.Phone</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
-
-@code{
-    List<UserDTO> _userList;
-    protected override async Task OnInitializedAsync()
-    {
-        _userList = await UserService.GetAllUsers();
-    }
-}
+Te damos la bienvenida  @Setting.UserBasicDetail.Name

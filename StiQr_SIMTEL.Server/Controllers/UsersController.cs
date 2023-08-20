@@ -1,199 +1,155 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using StiQr_SIMTEL.Server.Data;
 using StiQr_SIMTEL.Server.Models;
-using StiQr_SIMTEL.Shared;
-using System.Numerics;
-using System.Security.Principal;
+using StiQr_SIMTEL.Shared.Users;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
-namespace StiQR_SIMTEL_BackEnd.Controllers
+namespace StiQr_SIMTEL.Server.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly StiqrDbContext _context;
-
-        public UsersController(StiqrDbContext context)
+        private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IConfiguration _configuration;
+        public UsersController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager , IConfiguration configuration)
         {
-            _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _configuration = configuration;
         }
 
-        [HttpGet]
-        [Route("GetAll")]
-        public async Task<IActionResult> GetUsers()
+        [HttpPost("CreateRole")]
+        public async Task<IActionResult> CreateRole(CreateRoleDTO roleDTO)
         {
-            var responseAPI = new ResponseAPI<List<UserDTO>>();
-            var listUserDTO = new List<UserDTO>();
 
-            try
+            var response = await _roleManager.CreateAsync(new IdentityRole
             {
-                foreach (var user in await _context.Users.ToListAsync())
-                {
-                    listUserDTO.Add(new UserDTO
-                    {
-                        Id = user.Id,
-                        Name = user.Name,
-                        LastName = user.LastName,
-                        Cidentity = user.Cidentity,
-                        Email = user.Email,
-                        Phone = user.Phone,
-                        Password = user.Password,
-                    });
-                }
-                responseAPI.IsCorrect = true;
-                responseAPI.Value = listUserDTO;
-
-            }
-            catch (Exception ex)
+                Name = roleDTO.RoleName
+            });
+            if (response.Succeeded)
             {
-                responseAPI.IsCorrect = false;
-                responseAPI.Message = ex.Message;
+                return Ok("Rol Creado");
             }
-            return Ok(responseAPI);
+            else
+            {
+                return BadRequest(response.Errors);
+            }
         }
 
-        [HttpGet]
-        [Route("GetByID/{id}")]
-        public async Task<IActionResult> GetUser(int id)
+        [HttpPost("AssignRoleToUser")]
+        public async Task<IActionResult> AssignRoleToUser(AssignRoleToUserDTO assignRoleToUserDTO)
         {
-            var responseAPI = new ResponseAPI<UserDTO>();
-            var userDTO = new UserDTO();
-
-            try
+            var userDetails = await _userManager.FindByEmailAsync(assignRoleToUserDTO.Email);
+            if (userDetails != null)
             {
-                var dbUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
-                if (dbUser != null)
+               var userRoleAssignResponse =await _userManager.AddToRoleAsync(userDetails, assignRoleToUserDTO.RoleName);
+                if (userRoleAssignResponse.Succeeded)
                 {
-                    userDTO.Id = dbUser.Id;
-                    userDTO.Name = dbUser.Name;
-                    userDTO.LastName = dbUser.LastName;
-                    userDTO.Cidentity = dbUser.Cidentity;
-                    userDTO.Email = dbUser.Email;
-                    userDTO.Phone = dbUser.Phone;
-                    responseAPI.IsCorrect = true;
-                    responseAPI.Value = userDTO;
+                    return Ok("Rol asignado al usuario: " + assignRoleToUserDTO.RoleName);
                 }
                 else
                 {
-                    responseAPI.IsCorrect = false;
-                    responseAPI.Message = "No encontrado";
+                    return BadRequest(userRoleAssignResponse.Errors);
                 }
-
-
-
             }
-            catch (Exception ex)
+            else
             {
-                responseAPI.IsCorrect = false;
-                responseAPI.Message = ex.Message;
+                return BadRequest("Este usuario no existe");
             }
-            return Ok(responseAPI);
+           
         }
-
-        [HttpPost]
-        [Route("Create")]
-        public async Task<IActionResult> CreateUser(UserDTO userDTO)
+        [AllowAnonymous]
+        [HttpPost("AuthenticateUser")]
+        public async Task<IActionResult> AuthenticateUser(AuthenticateUser authenticateUser)
         {
-            var responseAPI = new ResponseAPI<int>();
-            try
+            var user = await _userManager.FindByNameAsync(authenticateUser.UserName);
+            if (user == null) return Unauthorized();
+            bool isVaidUser = await _userManager.CheckPasswordAsync(user, authenticateUser.Password);
+            if (isVaidUser)
             {
-                var dbUser = new User
+                var tokenHandler = new JwtSecurityTokenHandler();
+#pragma warning disable CS8604 // Posible argumento de referencia nulo
+                var keyDetail = Encoding.UTF8.GetBytes(_configuration["JWT:Key"]);
+
+                var claims = new List<Claim>
                 {
-                    Name = userDTO.Name,
-                    LastName = userDTO.LastName,
-                    Cidentity = userDTO.Cidentity,
-                    Email = userDTO.Email,
-                    Phone = userDTO.Phone,
-                    Password = userDTO.Password,
+                    new Claim(ClaimTypes.NameIdentifier,user.Id),
+                    new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
                 };
-                _context.Users.Add(dbUser);
-                await _context.SaveChangesAsync();
-                if (dbUser.Id != 0) {
-                    responseAPI.IsCorrect = true;
-                    responseAPI.Value = dbUser.Id;
-                }
-                else
+#pragma warning restore CS8604 // Posible argumento de referencia nulo
+                var tokenDescription = new SecurityTokenDescriptor
                 {
-                    responseAPI.IsCorrect = false;
-                    responseAPI.Message = "No se pudo guardar el usuario";
-                }
-
+                    Audience = _configuration["JWT:Audience"],
+                    Issuer = _configuration["JWT:Issuer"],
+                    Expires = DateTime.UtcNow.AddDays(5),
+                    Subject = new ClaimsIdentity(claims),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyDetail),SecurityAlgorithms.HmacSha256Signature),
+                };
+                var token = tokenHandler.CreateToken(tokenDescription);
+                return Ok(tokenHandler.WriteToken(token));
             }
-            catch (Exception ex)
+            else
             {
-                responseAPI.IsCorrect = false;
-                responseAPI.Message = ex.Message;
+                return Unauthorized();
             }
-            return Ok(responseAPI);
         }
 
-        [HttpPut]
-        [Route("Edit/{id}")]
-        public async Task<IActionResult> EditUser(UserDTO userDTO, int id)
+
+        [AllowAnonymous] 
+        [HttpPost("RegisterUser")]
+        public async Task<IActionResult> RegisterUser(RegisterUserDTO registerUserDTO)
         {
-            var responseAPI = new ResponseAPI<int>();
-            try
+            var userToBeCreated = new User
             {
-                var dbUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
-                if (dbUser != null)
-                {
-                    dbUser.Name = userDTO.Name;
-                    dbUser.LastName = userDTO.LastName;
-                    dbUser.Cidentity = userDTO.Cidentity;
-                    dbUser.Email = userDTO.Email;
-                    dbUser.Phone = userDTO.Phone;
-                    dbUser.Password = userDTO.Password;
-
-                    _context.Users.Update(dbUser);
-                    await _context.SaveChangesAsync();
-
-                    responseAPI.IsCorrect = true;
-                    responseAPI.Value = dbUser.Id;
-                }
-                else
-                {
-                    responseAPI.IsCorrect = false;
-                    responseAPI.Message = "Usuario no encontrado";
-                }
-
-            }
-            catch (Exception ex)
+                FirstName = registerUserDTO.FirstName,
+                LastName = registerUserDTO.LastName,
+                UserName = registerUserDTO.Email,
+                Email = registerUserDTO.Email,
+                
+            };
+            var response = await _userManager.CreateAsync(userToBeCreated, registerUserDTO.Password);
+            if (response.Succeeded)
             {
-                responseAPI.IsCorrect = false;
-                responseAPI.Message = ex.Message;
+                return Ok("Usuario Creado");
             }
-            return Ok(responseAPI);
+            else
+            {
+                return BadRequest(response.Errors);
+            }
         }
-
-        [HttpDelete]
-        [Route("Delete/{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        [HttpDelete("DeleteUser")]
+        public async Task<IActionResult> DeleteUser(DeleteUserDTO userDetails)
         {
-            var responseAPI = new ResponseAPI<int>();
-            try
+
+            var existingUser = await _userManager.FindByEmailAsync(userDetails.Email);
+            if (existingUser != null)
             {
-                var dbUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
-                if (dbUser != null)
+                var response = await _userManager.DeleteAsync(existingUser);
+                if (response.Succeeded)
                 {
-                    _context.Users.Remove(dbUser);
-                    await _context.SaveChangesAsync();
-                    responseAPI.IsCorrect = true;
+
+                    return Ok("Usuario Eliminado");
                 }
                 else
                 {
-                    responseAPI.IsCorrect = false;
-                    responseAPI.Message = "Usuario no encontrado";
+                    return BadRequest(response.Errors);
                 }
-
             }
-            catch (Exception ex)
+            else
             {
-                responseAPI.IsCorrect = false;
-                responseAPI.Message = ex.Message;
+                return BadRequest("No se ha encontado el usuario");
             }
-            return Ok(responseAPI);
-        } 
-    
+
+        }
 
     }
 }
