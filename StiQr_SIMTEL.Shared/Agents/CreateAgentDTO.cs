@@ -1,17 +1,20 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace StiQr_SIMTEL.Server.Data
+namespace StiQr_SIMTEL.Shared.Agents
 {
-    public class Agent
+    public class CreateAgentDTO
     {
-        [Key]
-        public int AgentID { get; set; }
         [Required]
         public string Email { get; set; } = null!;
         [Required]
         public string FullName { get; set; } = null!;
-        [MaxLength(100)]
+        [Required]
         public string Description { get; set; } = null!;
+
     }
 }

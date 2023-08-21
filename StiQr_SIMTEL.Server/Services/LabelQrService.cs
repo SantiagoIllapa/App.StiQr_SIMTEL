@@ -32,7 +32,7 @@ namespace StiQr_SIMTEL.Server.Services
                 {
                     try
                     {
-                        var LabelRegisterResponse = await _dbContext.AddAsync(new LabelQr
+                        await _dbContext.AddAsync(new LabelQr
                         {
                             UserEmail = LabelQrDTO.UserEmail,
                             Plate = LabelQrDTO.Plate,

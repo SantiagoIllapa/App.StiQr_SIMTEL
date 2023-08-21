@@ -8,10 +8,10 @@ namespace StiQr_SIMTEL.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LabelQrController : ControllerBase
+    public class LabelsQrController : ControllerBase
     {
         private readonly ILabelQrService _labelQrService;
-        public LabelQrController(ILabelQrService labelQrService)
+        public LabelsQrController(ILabelQrService labelQrService)
         {
             _labelQrService = labelQrService;
         }

@@ -18,6 +18,7 @@ public partial class StiQrDbContext : IdentityDbContext<User>
 
     public DbSet<Agent> Agents { get; set; }
     public DbSet<LabelQr> LabelsQr { get; set; }
+    public DbSet<Transaction> Transactions { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
