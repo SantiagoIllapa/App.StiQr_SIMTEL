@@ -8,6 +8,7 @@ namespace StiQr_SIMTEL.Server
     using Microsoft.OpenApi.Models;
     using StiQr_SIMTEL.Server.Context;
     using StiQr_SIMTEL.Server.Data;
+    using StiQr_SIMTEL.Server.Services;
     using System.Text;
 
     public class Program
@@ -73,7 +74,7 @@ namespace StiQr_SIMTEL.Server
                     ClockSkew = TimeSpan.Zero
                 };
             });
-
+            builder.Services.AddScoped<ILabelQrService, LabelQrService>();
             builder.Services.AddControllers();
 
             builder.Services.AddEndpointsApiExplorer();

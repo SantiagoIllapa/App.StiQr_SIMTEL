@@ -1,4 +1,5 @@
 ﻿using StiQr_SIMTEL.Server.Context;
+using StiQr_SIMTEL.Server.Data;
 using StiQr_SIMTEL.Shared;
 
 namespace StiQr_SIMTEL.Server.Services
@@ -16,7 +17,7 @@ namespace StiQr_SIMTEL.Server.Services
             try
             {
 
-                await _dbContext.AddAsync(new AgentDTO
+                await _dbContext.AddAsync(new Agent
                 {
                     AgentName = agentDTO.AgentName,
                     AgentDescription = agentDTO.AgentDescription,

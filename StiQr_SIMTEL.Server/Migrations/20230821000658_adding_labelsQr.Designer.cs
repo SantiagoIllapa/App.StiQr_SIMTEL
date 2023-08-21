@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StiQr_SIMTEL.Server.Context;
 
@@ -11,9 +12,11 @@ using StiQr_SIMTEL.Server.Context;
 namespace StiQr_SIMTEL.Server.Migrations
 {
     [DbContext(typeof(StiQrDbContext))]
-    partial class StiQrDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230821000658_adding_labelsQr")]
+    partial class adding_labelsQr
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -194,8 +197,8 @@ namespace StiQr_SIMTEL.Server.Migrations
 
                     b.Property<string>("Plate")
                         .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
 
                     b.Property<string>("UserEmail")
                         .IsRequired()

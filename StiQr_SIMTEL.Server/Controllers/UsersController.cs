@@ -127,7 +127,7 @@ namespace StiQr_SIMTEL.Server.Controllers
             }
         }
         [HttpDelete("DeleteUser")]
-        public async Task<IActionResult> DeleteUser(DeleteUserDTO userDetails)
+        public async Task<IActionResult> DeleteUser(UserEmailDTO userDetails)
         {
 
             var existingUser = await _userManager.FindByEmailAsync(userDetails.Email);
