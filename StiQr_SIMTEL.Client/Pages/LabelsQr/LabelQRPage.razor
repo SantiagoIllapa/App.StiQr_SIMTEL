@@ -1,0 +1,82 @@
+﻿@page "/LabelPage"
+@using StiQr_SIMTEL.Client.Services;
+@using StiQr_SIMTEL.Shared.LabelsQR;
+@using System.Diagnostics;
+@inject IAppService AppService;
+<h1>Administración de EtiquetasQR</h1>
+
+
+@if (_labelList == null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" style="width: 3rem; height: 3rem;"  role="status">
+
+        </div>
+    </div>
+    <p>@errorText</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Placa</th>
+                    <th>Ultima marca</th>
+                    <th>Email Conductor</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in _labelList)
+                {
+                    <tr>
+                        <td>@user.Id</td>
+                        <td>@user.Plate</td>
+                        <td>@user.LastMark</td>
+                        <td>@user.UserEmail</td>
+                        <td>
+                            <button class="btn btn-info" type="button">
+
+                                <span class="oi oi-pencil" style="color: white;" aria-hidden="true"></span>
+                            </button>
+                            <button class="btn btn-danger" type="button" >
+
+                                <span class="oi oi-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <NavLink class="nav-link" href="/LabelQRDetail">
+        <span> EscanearCodigo</span>
+    </NavLink>
+}
+
+@code {
+    string errorText = "";
+    List<GetLabelQrDTO> _labelList;
+    string _error = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        var response = await AppService.GetLabelsQr();
+        if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
+        {
+            errorText = "Oops" + response.ErrorMessage;
+        }
+        else
+        {
+            _labelList = response.LabelsList;
+        }
+    }
+    // private async Task DeleteLabelQr(int id)
+    // {
+    //     var response = await AppService.DeleteLabelQr(id);
+        
+    // }
+}

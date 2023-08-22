@@ -1,0 +1,81 @@
+﻿@page "/LabelQRDetail"
+@using StiQr_SIMTEL.Client.Services;
+@using StiQr_SIMTEL.Shared.LabelsQR;
+@inject IAppService AppService;
+<div style="display: flex; justify-content: center;">
+    @if (_labelQrDetail == null)
+    {
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+  
+            </div>
+        </div>
+        <p>@errorText</p>
+    }
+    else
+    {
+        <div class="card text-center" style="width: 18rem;">
+            @* <img class="card-img-top" style="background-color:yellow" src="" alt="Código QR"> *@
+            <div class="card-body">
+                <h3 class="card-title">Placa</h3>
+                <h4 class="card-title">@_labelQrDetail.Plate</h4>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <h5>Último Check</h5>
+                        <br />
+                        @_labelQrDetail.LastMark
+                    </li>
+                    <li class="list-group-item">
+                        <h5>Tiempo Restante</h5>
+                        <br />
+                        <p>@minLeft Minuto(s)</p>
+                    </li>
+
+                    <li class="list-group-item"></li>
+
+                </ul>
+                @if (isChecked)
+                {
+                    <div class="card-body">
+                        <span class="oi oi-thumb-up" aria-hidden="true"></span> Actualizado!
+                    </div>
+                }
+                else
+                {
+                    <div class="card-body">
+                        <a href="#" class="btn btn-primary">Check!</a>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+@code {
+    bool isChecked = false;
+    string errorText = "";
+    GetLabelQrDTO _labelQrDetail;
+    string _error = string.Empty;
+    int minLeft;
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        var response = await AppService.GetLabelQrById(2);
+        if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
+        {
+            errorText = "Oops" + response.ErrorMessage;
+        }
+        else
+        {
+            _labelQrDetail = response.LabelQr;
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil"));
+            minLeft = (int)Math.Round((_labelQrDetail.ExpiredDateMark - now).TotalMinutes);
+            if (minLeft > 0)
+            {
+                isChecked = true;
+            }
+        }
+
+
+    }
+}

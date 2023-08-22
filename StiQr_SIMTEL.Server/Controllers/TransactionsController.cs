@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StiQr_SIMTEL.Server.Services;
+using StiQr_SIMTEL.Shared;
 using StiQr_SIMTEL.Shared.LabelQR;
 using StiQr_SIMTEL.Shared.Transactions;
 
@@ -20,16 +21,21 @@ namespace StiQr_SIMTEL.Server.Controllers
         [HttpPost("RegisterTransaction")]
         public async Task<IActionResult> RegisterTransaction([FromBody] RegisterTransactionDTO transactionDetail)
         {
+
+            var response = await _transactionService.RegisterTransaction(transactionDetail);
+            return HandleAPIResponse(response);
+
+        }
+        private IActionResult HandleAPIResponse<T>(ResponseAPI<T> response)
+        {
             try
             {
-                var response = await _transactionService.RegisterTransaction(transactionDetail);
                 return Ok(response);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-
         }
     }
 }

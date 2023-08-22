@@ -14,11 +14,11 @@ namespace StiQr_SIMTEL.Server.Data
         public string Plate { get; set; } = null!;
 
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
-        public DateTime? LastMark { get; set; }
+        public DateTime LastMark { get; set; }
 
         [Column(TypeName = "decimal(18, 2)")] // Define la precisión de dos decimales para dinero.
         [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = false)] // Formato de moneda
         [DataType(DataType.Currency)] // Indica que es un campo de dinero
-        public decimal? Amount { get; set; }
+        public decimal Amount { get; set; }
     }
 }

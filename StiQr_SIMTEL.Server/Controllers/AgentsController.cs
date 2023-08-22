@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StiQr_SIMTEL.Server.Services;
+using StiQr_SIMTEL.Shared;
 using StiQr_SIMTEL.Shared.Agents;
 
 namespace StiQr_SIMTEL.Server.Controllers
@@ -22,16 +23,19 @@ namespace StiQr_SIMTEL.Server.Controllers
         [HttpPost("AddAgent")]
         public async Task<IActionResult> AddAgent([FromBody] CreateAgentDTO agentInf)
         {
+            var response = await _agentService.AddAgent(agentInf);
+            return HandleAPIResponse(response);
+        }
+        private IActionResult HandleAPIResponse<T>(ResponseAPI<T> response)
+        {
             try
             {
-                var response = await _agentService.AddAgent(agentInf);
                 return Ok(response);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-
         }
 
     }

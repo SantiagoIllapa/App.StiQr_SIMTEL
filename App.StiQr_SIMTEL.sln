@@ -9,7 +9,7 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "StiQr_SIMTEL.DataBase", "St
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StiQr_SIMTEL.Shared", "StiQr_SIMTEL.Shared\StiQr_SIMTEL.Shared.csproj", "{CA4D5D98-9A33-4B96-8A36-22C21AB85E22}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StiQr_SIMTEL.Client", "StiQr_SIMTEL.Client\StiQr_SIMTEL.Client.csproj", "{7F72793D-ACAF-42ED-B1F9-2562B73931FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StiQr_SIMTEL.Client", "StiQr_SIMTEL.Client\StiQr_SIMTEL.Client.csproj", "{FE90CC22-2529-45AA-9F8B-B5699AF078DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,12 +31,12 @@ Global
 		{CA4D5D98-9A33-4B96-8A36-22C21AB85E22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA4D5D98-9A33-4B96-8A36-22C21AB85E22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA4D5D98-9A33-4B96-8A36-22C21AB85E22}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7F72793D-ACAF-42ED-B1F9-2562B73931FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7F72793D-ACAF-42ED-B1F9-2562B73931FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7F72793D-ACAF-42ED-B1F9-2562B73931FC}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{7F72793D-ACAF-42ED-B1F9-2562B73931FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7F72793D-ACAF-42ED-B1F9-2562B73931FC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7F72793D-ACAF-42ED-B1F9-2562B73931FC}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{FE90CC22-2529-45AA-9F8B-B5699AF078DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE90CC22-2529-45AA-9F8B-B5699AF078DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE90CC22-2529-45AA-9F8B-B5699AF078DF}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{FE90CC22-2529-45AA-9F8B-B5699AF078DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE90CC22-2529-45AA-9F8B-B5699AF078DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE90CC22-2529-45AA-9F8B-B5699AF078DF}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
