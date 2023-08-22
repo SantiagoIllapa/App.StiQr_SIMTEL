@@ -1,0 +1,100 @@
+﻿@page "/LabelQrRecharge"
+@using System.Text.RegularExpressions;
+@using StiQr_SIMTEL.Client.Models;
+<h3>Recarga de Etiqueta</h3>
+
+<EditForm Model="@searchModel" OnValidSubmit="SearchPlate">
+    <div class="mb-3">
+        <label class="form-label">Ingrese la Placa</label>
+        <div class="input-group">
+            <input type="text" class="form-control" aria-describedby="basic-addon3 basic-addon4"
+                   placeholder="XXX" @bind-value="searchModel.PlateCode" @oninput="ValidateCode" />
+            <span class="input-group-text" id="basic-addon3">-</span>
+            <input type="text" class="form-control" aria-describedby="basic-addon3 basic-addon4"
+                   placeholder="1234" @bind-value="searchModel.PlateNumber" @oninput="ValidateNumber" />
+            <button type="button" class="btn btn-secondary" id="basic-addon1" @onclick="SearchPlate">
+                <span class="oi oi-magnifying-glass" aria-hidden="true"></span>
+            </button>
+        </div>
+        <div class="form-text --bs-danger-text-emphasis" id="basic-addon4">@errorText</div>
+        <div class="form-text @textClass" id="basic-addon4">@infoText</div>
+    </div>
+</EditForm>
+
+<div style="display: flex; justify-content: center;">
+    <div style="position: relative; width: 325px; height: 200px;">
+        <img src="img/plate.png" alt="Plate" style="width: 100%; height: 100%;" />
+        <p class="fs-1" style="position: absolute; top: 40%; left: 23%; overflow-y: auto;">@plateText</p>
+    </div>
+</div>
+
+
+
+<div class="mb-3">
+    <div class="input-group">
+        <span class="input-group-text">$</span>
+        <input type="text" class="form-control">
+        <span class="input-group-text">.00</span>
+        <button type="button" class=" btn btn-secondary" id="basic-addon1" @onclick="SearchPlate">
+            <span class="oi oi-dollar" aria-hidden="true"></span> Recargar
+        </button>
+    </div>
+
+</div>
+
+
+@code {
+    string plateText = "";
+    string textClass = "--bs-danger-text-emphasis";
+    string errorText = "";
+    string infoText = "";
+    string plateCodeAux = "";
+    string plateNumberAux = "";
+    SearchPlate searchModel = new();
+
+    private void SearchPlate()
+    {
+        plateText = searchModel.PlateCode + "-" + searchModel.PlateNumber;
+    }
+    private void ValidateCode(ChangeEventArgs e)
+    {
+        string input = e.Value?.ToString();
+
+        if (int.TryParse(input, out int number))
+        {
+            errorText = input;
+          
+            searchModel.PlateCode = plateCodeAux;
+            return;
+        }
+        input = input.ToUpper();
+        searchModel.PlateCode= input;
+        if (input.Length > 3 || !Regex.IsMatch(input, "^[A-Z]+$"))
+        {
+            errorText = input;
+            infoText = "letra";
+            searchModel.PlateCode = plateCodeAux;
+        }
+        else
+        {
+            plateCodeAux = searchModel.PlateCode;
+        }
+
+        
+    }
+
+    private void ValidateNumber(ChangeEventArgs e)
+    {
+        string input = e.Value?.ToString();
+        if (!int.TryParse(input, out int number) || number < 0 || input.Length != 4)
+        {
+            // El valor ingresado no es un número no negativo de 4 dígitos
+            // Puedes mostrar un mensaje de error o realizar otras acciones
+        }
+        else
+        {
+            // El valor ingresado es válido
+            searchModel.PlateNumber = input;
+        }
+    }
+}
