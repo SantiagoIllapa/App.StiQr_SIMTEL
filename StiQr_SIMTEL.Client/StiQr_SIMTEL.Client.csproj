@@ -31,16 +31,55 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android|AnyCPU'">
+      <ApplicationTitle>StiQr</ApplicationTitle>
+      <ApplicationId>com.satoxcorps.stiqr</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
+      <ApplicationTitle>StiQr</ApplicationTitle>
+      <ApplicationId>com.satoxcorps.stiqr</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-maccatalyst|AnyCPU'">
+      <ApplicationTitle>StiQr</ApplicationTitle>
+      <ApplicationId>com.satoxcorps.stiqr</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-windows10.0.19041.0|AnyCPU'">
+      <ApplicationTitle>StiQr</ApplicationTitle>
+      <ApplicationId>com.satoxcorps.stiqr</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-android|AnyCPU'">
+      <ApplicationTitle>StiQr</ApplicationTitle>
+      <ApplicationId>com.satoxcorps.stiqr</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios|AnyCPU'">
+      <ApplicationTitle>StiQr</ApplicationTitle>
+      <ApplicationId>com.satoxcorps.stiqr</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-maccatalyst|AnyCPU'">
+      <ApplicationTitle>StiQr</ApplicationTitle>
+      <ApplicationId>com.satoxcorps.stiqr</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-windows10.0.19041.0|AnyCPU'">
+      <ApplicationTitle>StiQr</ApplicationTitle>
+      <ApplicationId>com.satoxcorps.stiqr</ApplicationId>
+    </PropertyGroup>
+
     <ItemGroup>
         <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+		<MauiAsset Include="Resources\AppIcon\logo.png" Color="#212932" ForegroundScale="0.65" />
 
         <!-- Splash Screen -->
-        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
-
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#212932" BaseSize="128,128" />
         <!-- Images -->
         <MauiImage Include="Resources\Images\*" />
-        <MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
+        <MauiImage Update="Resources\Images\dotnet_bot.svg" />
 
         <!-- Custom Fonts -->
         <MauiFont Include="Resources\Fonts\*" />
@@ -48,6 +87,14 @@
         <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Resources\AppIcon\appiconfg.svg" />
+      <None Remove="Resources\Raw\logo.svg" />
+      <None Remove="Resources\Splash\splash.svg" />
+    </ItemGroup>
+
+
 
     <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.10" />
@@ -63,5 +110,6 @@
     <ItemGroup>
       <ProjectReference Include="..\StiQr_SIMTEL.Shared\StiQr_SIMTEL.Shared.csproj" />
     </ItemGroup>
+
 
 </Project>
