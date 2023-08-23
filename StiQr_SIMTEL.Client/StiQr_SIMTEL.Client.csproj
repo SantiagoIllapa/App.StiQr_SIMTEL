@@ -73,10 +73,11 @@
 
     <ItemGroup>
         <!-- App Icon -->
-		<MauiAsset Include="Resources\AppIcon\logo.png" Color="#212932" ForegroundScale="0.65" />
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" ForegroundScale="0.65" />
+
 
         <!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#212932" BaseSize="128,128" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#103F74" BaseSize="128,128" />
         <!-- Images -->
         <MauiImage Include="Resources\Images\*" />
         <MauiImage Update="Resources\Images\dotnet_bot.svg" />

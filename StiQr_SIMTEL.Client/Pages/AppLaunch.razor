@@ -3,8 +3,9 @@
 @using StiQr_SIMTEL.Client.Models;
 @using System.IdentityModel.Tokens.Jwt;
 @inject NavigationManager NavManager;
-<h3>AppLaunch</h3>
-Loading.....
+<div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+    <div class="spinner-border" style="width: 5rem; height: 5rem; color:#144883; " role="status" />
+</div>
 @code {
     protected async override Task OnInitializedAsync()
     {
