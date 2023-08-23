@@ -8,10 +8,10 @@
         <label class="form-label">Ingrese la Placa</label>
         <div class="input-group">
             <input type="text" class="form-control" aria-describedby="basic-addon3 basic-addon4"
-                   placeholder="XXX" @bind-value="searchModel.PlateCode" @oninput="ValidateCode" />
+                   placeholder="XXX" @bind="searchModel.PlateCode" @oninput="ValidateCode" maxlength="3" />
             <span class="input-group-text" id="basic-addon3">-</span>
             <input type="text" class="form-control" aria-describedby="basic-addon3 basic-addon4"
-                   placeholder="1234" @bind-value="searchModel.PlateNumber" @oninput="ValidateNumber" />
+                   placeholder="1234" @bind-value="searchModel.PlateNumber" @oninput="ValidateNumber" maxlength="4" />
             <button type="button" class="btn btn-secondary" id="basic-addon1" @onclick="SearchPlate">
                 <span class="oi oi-magnifying-glass" aria-hidden="true"></span>
             </button>
@@ -35,7 +35,7 @@
         <span class="input-group-text">$</span>
         <input type="text" class="form-control">
         <span class="input-group-text">.00</span>
-        <button type="button" class=" btn btn-secondary" id="basic-addon1" @onclick="SearchPlate">
+        <button type="button" class=" btn btn-secondary" @onclick="MostrarConfirmacion">
             <span class="oi oi-dollar" aria-hidden="true"></span> Recargar
         </button>
     </div>
@@ -43,44 +43,76 @@
 </div>
 
 
+@if (mostrarModal)
+{
+    <div class="modal fade show" style="display: block; background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmación</h5>
+
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas realizar esta acción?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CerrarConfirmacion">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="AceptarConfirmacion">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
 @code {
     string plateText = "";
     string textClass = "--bs-danger-text-emphasis";
     string errorText = "";
     string infoText = "";
-    string plateCodeAux = "";
-    string plateNumberAux = "";
+
     SearchPlate searchModel = new();
+    private bool mostrarModal = false;
+
+    private void MostrarConfirmacion()
+    {
+        mostrarModal = true;
+    }
+
+    private void CerrarConfirmacion()
+    {
+        mostrarModal = false;
+    }
+
+    private void AceptarConfirmacion()
+    {
+        // Aquí puedes ejecutar la acción que desees después de que el usuario confirme.
+        mostrarModal = false;
+        RechargeLabelQr();
+    }
 
     private void SearchPlate()
     {
         plateText = searchModel.PlateCode + "-" + searchModel.PlateNumber;
     }
+    private void RechargeLabelQr()
+    {
+
+    }
+
     private void ValidateCode(ChangeEventArgs e)
     {
-        string input = e.Value?.ToString();
+        errorText = "";
+        string nuevoValor = e.Value.ToString();
 
-        if (int.TryParse(input, out int number))
+        if (nuevoValor.Length > 0)
         {
-            errorText = input;
-          
-            searchModel.PlateCode = plateCodeAux;
-            return;
+            int val = (int)nuevoValor[^1];
+            if (!Regex.IsMatch(nuevoValor, "^[A-Za-z]*$"))
+            {
+                errorText = "Por favor ingrese una placa válida";
+            }
         }
-        input = input.ToUpper();
-        searchModel.PlateCode= input;
-        if (input.Length > 3 || !Regex.IsMatch(input, "^[A-Z]+$"))
-        {
-            errorText = input;
-            infoText = "letra";
-            searchModel.PlateCode = plateCodeAux;
-        }
-        else
-        {
-            plateCodeAux = searchModel.PlateCode;
-        }
-
-        
     }
 
     private void ValidateNumber(ChangeEventArgs e)
