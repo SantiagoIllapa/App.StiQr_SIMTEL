@@ -6,6 +6,7 @@ using StiQr_SIMTEL.Shared.Users;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,7 +33,6 @@ namespace StiQr_SIMTEL.Client.Services
             }
             return returnStr;
         }
-
         public async Task<(bool IsSuccess, string ErrorMessage)> RegisterUser(RegisterUserDTO registrationModel)
         {
             string errorMessage = string.Empty;
@@ -92,7 +92,7 @@ namespace StiQr_SIMTEL.Client.Services
             return (labelsList, errorMessage);
 
         }
-        public async Task <(GetLabelQrDTO LabelQr,string ErrorMessage)> GetLabelQrById(int id)
+        public async Task<(GetLabelQrDTO LabelQr, string ErrorMessage)> GetLabelQrById(int id)
         {
             var labelQr = new GetLabelQrDTO();
             string errorMessage = string.Empty;
@@ -127,6 +127,44 @@ namespace StiQr_SIMTEL.Client.Services
                 errorMessage = ex.Message;
             }
             return (labelQr, errorMessage);
+        }
+
+        public async Task<(string ConfirmMessage, string ErrorMessage)> CheckHourLabelQr(CheckHourLabelQrDTO checkHourLabelQr, int id)
+        {
+            string confirmMessage = string.Empty;
+            string errorMessage = string.Empty;
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    var url = $"{_baseUrl}{APIs.CheckHourLabelQr}/{id}";
+                    var serializeStr = JsonConvert.SerializeObject(checkHourLabelQr);
+                    var apiResponse = await client.PutAsync(url, new StringContent(serializeStr, Encoding.UTF8, "application/json"));
+                    if (apiResponse.IsSuccessStatusCode)
+                    {
+
+                        var response = await apiResponse.Content.ReadAsStringAsync();
+                        var deserializeResponse = JsonConvert.DeserializeObject<ResponseAPI<string>>(response);
+                        if (deserializeResponse.IsSuccess)
+                        {
+                            confirmMessage = deserializeResponse.Content;
+                        }
+                        else
+                        {
+                            errorMessage = deserializeResponse.ErrorMessage;
+                        }
+                    }
+                    else
+                    {
+                        errorMessage = "No se ha podido conectar con el servidor";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+            }
+            return (confirmMessage, errorMessage);
         }
     }
 }

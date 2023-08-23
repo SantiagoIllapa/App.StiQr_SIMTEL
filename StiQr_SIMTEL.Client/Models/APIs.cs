@@ -12,5 +12,6 @@ namespace StiQr_SIMTEL.Client.Models
         public const string RegisterUser = "/api/Users/RegisterUser";
         public const string GetLabelsQr = "/api/LabelsQr/GetLabelsQr";
         public const string GetLabelsQrById="/api/LabelsQr/GetLabelsQrById";
+        public const string CheckHourLabelQr = "/api/LabelsQr/CheckHourLabelQr";
     }
 }

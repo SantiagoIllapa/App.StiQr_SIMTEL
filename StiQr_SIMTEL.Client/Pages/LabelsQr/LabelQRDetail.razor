@@ -2,6 +2,7 @@
 @using StiQr_SIMTEL.Client.Services;
 @using StiQr_SIMTEL.Shared.LabelsQR;
 @inject IAppService AppService;
+@inject IJSRuntime JSRuntime
 <div style="display: flex; justify-content: center;">
     @if (_labelQrDetail == null)
     {
@@ -25,14 +26,22 @@
                         <br />
                         @_labelQrDetail.LastMark
                     </li>
-                    <li class="list-group-item">
-                        <h5>Tiempo Restante</h5>
-                        <br />
-                        <p>@minLeft Minuto(s)</p>
-                    </li>
-
-                    <li class="list-group-item"></li>
-
+                    @if (isChecked)
+                    {
+                        <li class="list-group-item">
+                            <h5>Tiempo Restante</h5>
+                            <br />
+                            <p>@minLeft Minuto(s)</p>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="list-group-item">
+                            <h5>Se ha exedido el tiempo</h5>
+                            <br />
+                            <p>Presiona Check para actualizarlo</p>
+                        </li>
+                    }
                 </ul>
                 @if (isChecked)
                 {
@@ -43,7 +52,7 @@
                 else
                 {
                     <div class="card-body">
-                        <a href="#" class="btn btn-primary">Check!</a>
+                        <button type="button" class="btn btn-primary" @onclick="CheckHourLabelQr">Check!</button>
                     </div>
                 }
             </div>
@@ -52,14 +61,11 @@
 </div>
 @code {
     bool isChecked = false;
-    string errorText = "";
+    string errorText = string.Empty;
     GetLabelQrDTO _labelQrDetail;
-    string _error = string.Empty;
     int minLeft;
     protected override async Task OnInitializedAsync()
     {
-
-
         var response = await AppService.GetLabelQrById(2);
         if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
         {
@@ -75,7 +81,23 @@
                 isChecked = true;
             }
         }
-
-
+    }
+    public async void CheckHourLabelQr()
+    {
+        CheckHourLabelQrDTO checkHour = new CheckHourLabelQrDTO
+        {
+                LastMark = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil"))
+        };
+        var response = await AppService.CheckHourLabelQr(checkHour, 2);
+        if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
+        {
+            await App.Current.MainPage.DisplayAlert("Oops", response.ErrorMessage, "OK");
+        }
+        else
+        {
+             await JSRuntime.InvokeVoidAsync("location.reload");
+            await App.Current.MainPage.DisplayAlert("Genial", response.ConfirmMessage, "OK");
+           
+        }
     }
 }
