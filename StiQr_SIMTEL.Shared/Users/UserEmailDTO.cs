@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StiQr_SIMTEL.Shared.Users
 {
-    public class DeleteUserDTO
+    public class UserEmailDTO
     {
         public string Email { get; set; } = null!;
     }

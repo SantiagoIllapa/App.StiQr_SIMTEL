@@ -1,0 +1,103 @@
+﻿@page "/LabelQRDetail"
+@using StiQr_SIMTEL.Client.Services;
+@using StiQr_SIMTEL.Shared.LabelsQR;
+@inject IAppService AppService;
+@inject IJSRuntime JSRuntime
+<div style="display: flex; justify-content: center;">
+    @if (_labelQrDetail == null)
+    {
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+  
+            </div>
+        </div>
+        <p>@errorText</p>
+    }
+    else
+    {
+        <div class="card text-center" style="width: 18rem;">
+            @* <img class="card-img-top" style="background-color:yellow" src="" alt="Código QR"> *@
+            <div class="card-body">
+                <h3 class="card-title">Placa</h3>
+                <h4 class="card-title">@_labelQrDetail.Plate</h4>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <h5>Último Check</h5>
+                        <br />
+                        @_labelQrDetail.LastMark
+                    </li>
+                    @if (isChecked)
+                    {
+                        <li class="list-group-item">
+                            <h5>Tiempo Restante</h5>
+                            <br />
+                            <p>@minLeft Minuto(s)</p>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="list-group-item">
+                            <h5>Se ha exedido el tiempo</h5>
+                            <br />
+                            <p>Presiona Check para actualizarlo</p>
+                        </li>
+                    }
+                </ul>
+                @if (isChecked)
+                {
+                    <div class="card-body">
+                        <span class="oi oi-thumb-up" aria-hidden="true"></span> Actualizado!
+                    </div>
+                }
+                else
+                {
+                    <div class="card-body">
+                        <button type="button" class="btn btn-primary" @onclick="CheckHourLabelQr">Check!</button>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+@code {
+    bool isChecked = false;
+    string errorText = string.Empty;
+    GetLabelQrDTO _labelQrDetail;
+    int minLeft;
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await AppService.GetLabelQrById(2);
+        if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
+        {
+            errorText = "Oops" + response.ErrorMessage;
+        }
+        else
+        {
+            _labelQrDetail = response.LabelQr;
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil"));
+            minLeft = (int)Math.Round((_labelQrDetail.ExpiredDateMark - now).TotalMinutes);
+            if (minLeft > 0)
+            {
+                isChecked = true;
+            }
+        }
+    }
+    public async void CheckHourLabelQr()
+    {
+        CheckHourLabelQrDTO checkHour = new CheckHourLabelQrDTO
+        {
+                LastMark = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil"))
+        };
+        var response = await AppService.CheckHourLabelQr(checkHour, 2);
+        if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
+        {
+            await App.Current.MainPage.DisplayAlert("Oops", response.ErrorMessage, "OK");
+        }
+        else
+        {
+             await JSRuntime.InvokeVoidAsync("location.reload");
+            await App.Current.MainPage.DisplayAlert("Genial", response.ConfirmMessage, "OK");
+           
+        }
+    }
+}

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StiQr_SIMTEL.Server.Context;
 
@@ -11,9 +12,11 @@ using StiQr_SIMTEL.Server.Context;
 namespace StiQr_SIMTEL.Server.Migrations
 {
     [DbContext(typeof(StiQrDbContext))]
-    partial class StiQrDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230821000658_adding_labelsQr")]
+    partial class adding_labelsQr
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -163,18 +166,15 @@ namespace StiQr_SIMTEL.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AgentID"));
 
-                    b.Property<string>("Description")
+                    b.Property<string>("AgentDescription")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Email")
+                    b.Property<string>("AgentName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("AgentID");
 
@@ -189,16 +189,16 @@ namespace StiQr_SIMTEL.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("Amount")
+                    b.Property<decimal?>("Amount")
                         .HasColumnType("decimal(18, 2)");
 
-                    b.Property<DateTime>("LastMark")
+                    b.Property<DateTime?>("LastMark")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Plate")
                         .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
 
                     b.Property<string>("UserEmail")
                         .IsRequired()
@@ -207,28 +207,6 @@ namespace StiQr_SIMTEL.Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("LabelsQr");
-                });
-
-            modelBuilder.Entity("StiQr_SIMTEL.Server.Data.Transaction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("DateMark")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("IdAgent")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdLabelQr")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("StiQr_SIMTEL.Server.Data.User", b =>
