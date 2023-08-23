@@ -1,0 +1,132 @@
+﻿@page "/LabelQrRecharge"
+@using System.Text.RegularExpressions;
+@using StiQr_SIMTEL.Client.Models;
+<h3>Recarga de Etiqueta</h3>
+
+<EditForm Model="@searchModel" OnValidSubmit="SearchPlate">
+    <div class="mb-3">
+        <label class="form-label">Ingrese la Placa</label>
+        <div class="input-group">
+            <input type="text" class="form-control" aria-describedby="basic-addon3 basic-addon4"
+                   placeholder="XXX" @bind="searchModel.PlateCode" @oninput="ValidateCode" maxlength="3" />
+            <span class="input-group-text" id="basic-addon3">-</span>
+            <input type="text" class="form-control" aria-describedby="basic-addon3 basic-addon4"
+                   placeholder="1234" @bind-value="searchModel.PlateNumber" @oninput="ValidateNumber" maxlength="4" />
+            <button type="button" class="btn btn-secondary" id="basic-addon1" @onclick="SearchPlate">
+                <span class="oi oi-magnifying-glass" aria-hidden="true"></span>
+            </button>
+        </div>
+        <div class="form-text --bs-danger-text-emphasis" id="basic-addon4">@errorText</div>
+        <div class="form-text @textClass" id="basic-addon4">@infoText</div>
+    </div>
+</EditForm>
+
+<div style="display: flex; justify-content: center;">
+    <div style="position: relative; width: 325px; height: 200px;">
+        <img src="img/plate.png" alt="Plate" style="width: 100%; height: 100%;" />
+        <p class="fs-1" style="position: absolute; top: 40%; left: 23%; overflow-y: auto;">@plateText</p>
+    </div>
+</div>
+
+
+
+<div class="mb-3">
+    <div class="input-group">
+        <span class="input-group-text">$</span>
+        <input type="text" class="form-control">
+        <span class="input-group-text">.00</span>
+        <button type="button" class=" btn btn-secondary" @onclick="MostrarConfirmacion">
+            <span class="oi oi-dollar" aria-hidden="true"></span> Recargar
+        </button>
+    </div>
+
+</div>
+
+
+@if (mostrarModal)
+{
+    <div class="modal fade show" style="display: block; background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmación</h5>
+
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas realizar esta acción?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CerrarConfirmacion">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="AceptarConfirmacion">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    string plateText = "";
+    string textClass = "--bs-danger-text-emphasis";
+    string errorText = "";
+    string infoText = "";
+
+    SearchPlate searchModel = new();
+    private bool mostrarModal = false;
+
+    private void MostrarConfirmacion()
+    {
+        mostrarModal = true;
+    }
+
+    private void CerrarConfirmacion()
+    {
+        mostrarModal = false;
+    }
+
+    private void AceptarConfirmacion()
+    {
+        // Aquí puedes ejecutar la acción que desees después de que el usuario confirme.
+        mostrarModal = false;
+        RechargeLabelQr();
+    }
+
+    private void SearchPlate()
+    {
+        plateText = searchModel.PlateCode + "-" + searchModel.PlateNumber;
+    }
+    private void RechargeLabelQr()
+    {
+
+    }
+
+    private void ValidateCode(ChangeEventArgs e)
+    {
+        errorText = "";
+        string nuevoValor = e.Value.ToString();
+
+        if (nuevoValor.Length > 0)
+        {
+            int val = (int)nuevoValor[^1];
+            if (!Regex.IsMatch(nuevoValor, "^[A-Za-z]*$"))
+            {
+                errorText = "Por favor ingrese una placa válida";
+            }
+        }
+    }
+
+    private void ValidateNumber(ChangeEventArgs e)
+    {
+        string input = e.Value?.ToString();
+        if (!int.TryParse(input, out int number) || number < 0 || input.Length != 4)
+        {
+            // El valor ingresado no es un número no negativo de 4 dígitos
+            // Puedes mostrar un mensaje de error o realizar otras acciones
+        }
+        else
+        {
+            // El valor ingresado es válido
+            searchModel.PlateNumber = input;
+        }
+    }
+}
