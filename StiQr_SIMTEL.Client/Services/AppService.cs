@@ -129,7 +129,7 @@ namespace StiQr_SIMTEL.Client.Services
             return (labelQr, errorMessage);
         }
 
-        public async Task<(string ConfirmMessage, string ErrorMessage)> CheckHourLabelQr(CheckHourLabelQrDTO checkHourLabelQr, int id)
+        public async Task<(string ConfirmMessage, string ErrorMessage)> CheckHourLabelQr(CheckHourDTO checkHourLabelQr, int id)
         {
             string confirmMessage = string.Empty;
             string errorMessage = string.Empty;

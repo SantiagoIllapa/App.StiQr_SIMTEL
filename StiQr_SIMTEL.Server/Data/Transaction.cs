@@ -8,11 +8,18 @@ namespace StiQr_SIMTEL.Server.Data
         [Key]
         public int Id { get; set; }
         [Required]
-        public int IdAgent { get; set; } 
+        public string IdUserTransmiter { get; set; } = null!;
         [Required]
         public int IdLabelQr { get; set; }
+        [Range(1, 2)]
+        public byte Type  { get; set; }
+        [Column(TypeName = "decimal(18, 2)")] 
+        [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = false)] 
+        [DataType(DataType.Currency)] 
+        public decimal Amount { get; set; }
+        public string? Observations { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
-        public DateTime? DateMark { get; set; }
+        public DateTime DateTransacction { get; set; }
     }
 }

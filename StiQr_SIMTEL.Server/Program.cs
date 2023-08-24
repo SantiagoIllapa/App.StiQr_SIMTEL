@@ -76,7 +76,7 @@ namespace StiQr_SIMTEL.Server
             });
             builder.Services.AddScoped<ILabelQrService, LabelQrService>();
             builder.Services.AddScoped<ITransactionService, TransactionService>();
-            builder.Services.AddScoped<IAgentService, AgentService>();
+
             builder.Services.AddControllers();
 
             builder.Services.AddEndpointsApiExplorer();

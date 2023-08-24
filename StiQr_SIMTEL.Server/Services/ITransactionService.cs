@@ -7,5 +7,6 @@ namespace StiQr_SIMTEL.Server.Services
     public interface ITransactionService
     {
         Task<ResponseAPI<string>> RegisterTransaction(RegisterTransactionDTO transactionDTO);
+        Task<ResponseAPI<List<GetTransactionDTO>>> GetTransactionAll();
     }
 }

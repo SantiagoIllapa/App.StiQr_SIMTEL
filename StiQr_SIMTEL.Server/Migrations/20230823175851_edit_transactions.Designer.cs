@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StiQr_SIMTEL.Server.Context;
 
@@ -11,9 +12,11 @@ using StiQr_SIMTEL.Server.Context;
 namespace StiQr_SIMTEL.Server.Migrations
 {
     [DbContext(typeof(StiQrDbContext))]
-    partial class StiQrDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230823175851_edit_transactions")]
+    partial class edit_transactions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,6 +158,32 @@ namespace StiQr_SIMTEL.Server.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("StiQr_SIMTEL.Server.Data.Agent", b =>
+                {
+                    b.Property<int>("AgentID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AgentID"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AgentID");
+
+                    b.ToTable("Agents");
+                });
+
             modelBuilder.Entity("StiQr_SIMTEL.Server.Data.LabelQr", b =>
                 {
                     b.Property<int>("Id")
@@ -191,18 +220,14 @@ namespace StiQr_SIMTEL.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18, 2)");
-
                     b.Property<DateTime>("DateTransacction")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("IdLabelQr")
                         .HasColumnType("int");
 
-                    b.Property<string>("IdUserTransmiter")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("IdUserTransmiter")
+                        .HasColumnType("int");
 
                     b.Property<string>("Observations")
                         .HasColumnType("nvarchar(max)");

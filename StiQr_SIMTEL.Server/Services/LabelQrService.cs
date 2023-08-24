@@ -128,18 +128,52 @@ namespace StiQr_SIMTEL.Server.Services
             return response;
 
         }
-        public async Task<ResponseAPI<string>> CheckHourLabelQR(CheckHourLabelQrDTO ChecklabelQrDTO, int id)
+        public async Task<ResponseAPI<GetLabelQrDTO>> GetLabelQrByPlate(string LabelPlate)
+        {
+            var response = new ResponseAPI<GetLabelQrDTO>();
+            try
+            {
+                var dbLabelQr = await _dbContext.LabelsQr.FirstOrDefaultAsync(l => l.Plate == LabelPlate);
+                if (dbLabelQr != null)
+                {
+                    response.Content = new GetLabelQrDTO
+                    {
+                        Id = dbLabelQr.Id,
+                        Plate = dbLabelQr.Plate,
+                        UserEmail = dbLabelQr.UserEmail,
+                        LastMark = dbLabelQr.LastMark,
+                        ExpiredDateMark = dbLabelQr.LastMark.AddHours(1)
+                    };
+                    response.IsSuccess = true;
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.ErrorMessage = "No existe una EtiquetaQr con este Placa";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response.ErrorMessage = ex.Message;
+                response.IsSuccess = false;
+            }
+            return response;
+
+        }
+        public async Task<ResponseAPI<string>> RechargeCash(RechargeCashDTO rechargeDTO)
         {
             var response = new ResponseAPI<string>();
             try
             {
-                var existingLabel = await _dbContext.LabelsQr.FirstOrDefaultAsync(l => l.Id == id);
+                var existingLabel = await _dbContext.LabelsQr.FirstOrDefaultAsync(l => l.Id == rechargeDTO.IdLabelQr);
                 if (existingLabel != null)
                 {
-                    existingLabel.LastMark = ChecklabelQrDTO.LastMark;
+                    existingLabel.Amount += rechargeDTO.CashAmount;
                     await _dbContext.SaveChangesAsync();
+
                     response.IsSuccess = true;
-                    response.Content = "Check Hora confirmado";
+                    response.Content = "Se ha realizado la recarga de $" + rechargeDTO.CashAmount + " a la etiqueta con placa: " + existingLabel.Plate + " Correctamente.";
 
                 }
                 else
@@ -156,7 +190,41 @@ namespace StiQr_SIMTEL.Server.Services
 
             return response;
         }
+        public async Task<ResponseAPI<string>> CheckHourLabelQR(CheckHourDTO ChecklabelQrDTO)
+        {
+            var response = new ResponseAPI<string>();
+            try
+            {
+                var existingLabel = await _dbContext.LabelsQr.FirstOrDefaultAsync(l => l.Id == ChecklabelQrDTO.IdLabelQr);
+                if (existingLabel != null)
+                {
+                    if (existingLabel.Amount - 0.25m < 0)
+                    {
+                        response.IsSuccess = false;
+                        response.ErrorMessage = "Esta tarjeta no tiene fondos suficientes";
+                    }
+                    else
+                    {
+                        existingLabel.LastMark = ChecklabelQrDTO.LastMark;
+                        existingLabel.Amount -= 0.25m;
+                        await _dbContext.SaveChangesAsync();
+                        response.IsSuccess = true;
+                        response.Content = "Check Hora confirmado";
+                    }
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.ErrorMessage = "No se ha encontrado una etiqueta con este id";
+                }
+            }
+            catch (Exception ex)
+            {
+                response.ErrorMessage = ex.Message;
+                response.IsSuccess = false;
+            }
 
-
+            return response;
+        }
     }
 }
