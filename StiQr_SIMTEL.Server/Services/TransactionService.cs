@@ -81,6 +81,7 @@ namespace StiQr_SIMTEL.Server.Services
                         DateTransacction=transaction.DateTransacction,
                         IdLabelQr=transaction.IdLabelQr,
                         Type = transaction.Type,
+                        Amount= transaction.Amount,
                         Observations = transaction.Observations,
                     });
                 }
