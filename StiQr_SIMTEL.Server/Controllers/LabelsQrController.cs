@@ -5,6 +5,7 @@ using StiQr_SIMTEL.Server.Services;
 using StiQr_SIMTEL.Shared;
 using StiQr_SIMTEL.Shared.LabelQR;
 using StiQr_SIMTEL.Shared.LabelsQR;
+using StiQr_SIMTEL.Shared.Transactions;
 
 namespace StiQr_SIMTEL.Server.Controllers
 {
@@ -13,9 +14,13 @@ namespace StiQr_SIMTEL.Server.Controllers
     public class LabelsQrController : ControllerBase
     {
         private readonly ILabelQrService _labelQrService;
-        public LabelsQrController(ILabelQrService labelQrService)
+        private readonly ITransactionService _transactionService;
+
+        public LabelsQrController(ILabelQrService labelQrService, ITransactionService transactionService)
         {
             _labelQrService = labelQrService;
+            _transactionService = transactionService;
+
         }
 
 
@@ -38,10 +43,54 @@ namespace StiQr_SIMTEL.Server.Controllers
             var response = await _labelQrService.GetLabelQrById(id);
             return HandleAPIResponse(response);
         }
-        [HttpPut("CheckHourLabelQr/{id}")]
-        public async Task<IActionResult> CheckHourLabelQR([FromBody] CheckHourLabelQrDTO checkHourLabel,int id)
+        [HttpGet("GetLabelsQrByPlate/{plate}")]
+        public async Task<IActionResult> GetLabelQrByPlate(string plate)
         {
-            var response = await _labelQrService.CheckHourLabelQR(checkHourLabel,id);
+            var response = await _labelQrService.GetLabelQrByPlate(plate);
+            return HandleAPIResponse(response);
+        }
+        [HttpPut("CheckHourLabelQR")]
+        public async Task<IActionResult> CheckHourLabelQR([FromBody] CheckHourDTO checkHour)
+        {
+            var response = await _labelQrService.CheckHourLabelQR(checkHour);
+            if (response.IsSuccess)
+            {
+                var transactionResponse = await _transactionService.RegisterTransaction(new RegisterTransactionDTO
+                {
+                    IdUserTransmiter = checkHour.IdUserRecharger,
+                    IdLabelQr = checkHour.IdLabelQr,
+                    Amount = 0.25m,
+                    Type = 1,
+                    DateTransacction = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil")),
+                });
+                if (!transactionResponse.IsSuccess)
+                {
+                    return HandleAPIResponse(transactionResponse);
+                }
+
+            }
+            return HandleAPIResponse(response);
+        }
+        [HttpPut("RechargeCash")]
+        public async Task<IActionResult> RechargeCash([FromBody] RechargeCashDTO rechargeDTO)
+        {
+            var response = await _labelQrService.RechargeCash(rechargeDTO);
+            if(response.IsSuccess)
+            {
+                var transactionResponse = await _transactionService.RegisterTransaction(new RegisterTransactionDTO
+                {
+                    IdUserTransmiter= rechargeDTO.IdUserRecharger,
+                    IdLabelQr= rechargeDTO.IdLabelQr,
+                    Amount=rechargeDTO.CashAmount,
+                    Type=0,
+                    DateTransacction= TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil")),
+                });
+                if (!transactionResponse.IsSuccess)
+                {
+                    return HandleAPIResponse(transactionResponse);
+                }
+
+            }
             return HandleAPIResponse(response);
         }
         private IActionResult HandleAPIResponse<T>(ResponseAPI<T> response)

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using StiQr_SIMTEL.Server.Context;
 using StiQr_SIMTEL.Server.Data;
 using StiQr_SIMTEL.Shared;
+using StiQr_SIMTEL.Shared.LabelsQR;
 using StiQr_SIMTEL.Shared.Transactions;
 using StiQr_SIMTEL.Shared.Users;
 
@@ -12,18 +13,16 @@ namespace StiQr_SIMTEL.Server.Services
     {
         private readonly StiQrDbContext _dbContext;
         private readonly UserManager<User> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        public TransactionService(StiQrDbContext context, RoleManager<IdentityRole> roleManager, UserManager<User> userManager)
+        public TransactionService(StiQrDbContext context, UserManager<User> userManager)
         {
             _dbContext = context;
-            _roleManager = roleManager;
             _userManager = userManager;
         }
         public async Task<ResponseAPI<string>> RegisterTransaction(RegisterTransactionDTO transactionDTO)
         {
             var response = new ResponseAPI<string>();
 
-            var existingUser = await _dbContext.Agents.FirstOrDefaultAsync(l => l.AgentID == transactionDTO.IdAgent);
+            var existingUser = await _userManager.FindByIdAsync(transactionDTO.IdUserTransmiter);
             if (existingUser != null)
             {
 
@@ -34,9 +33,12 @@ namespace StiQr_SIMTEL.Server.Services
                     {
                         await _dbContext.AddAsync(new Transaction
                         {
-                            IdAgent = transactionDTO.IdAgent,
+                            IdUserTransmiter = transactionDTO.IdUserTransmiter,
                             IdLabelQr = transactionDTO.IdLabelQr,
-                            DateMark = transactionDTO.DateMark,
+                            Type = transactionDTO.Type,
+                            DateTransacction = transactionDTO.DateTransacction,
+                            Amount=transactionDTO.Amount,
+                            Observations = transactionDTO.Observations,
                         }); ;
                         await _dbContext.SaveChangesAsync();
                         response.IsSuccess = true;
@@ -57,9 +59,39 @@ namespace StiQr_SIMTEL.Server.Services
             else
             {
                 response.IsSuccess = false;
-                response.ErrorMessage = ("Este agente no existe");
+                response.ErrorMessage = ("Este usuario no existe");
             }
 
+            return response;
+        }
+        public async Task<ResponseAPI<List<GetTransactionDTO>>> GetTransactionAll()
+        {
+            var response = new ResponseAPI<List<GetTransactionDTO>>();
+            var TransactionList = new List<GetTransactionDTO>();
+            try
+            {
+                var dbTransactions = await _dbContext.Transactions.ToListAsync();
+
+                foreach (Transaction transaction in dbTransactions)
+                {
+                    TransactionList.Add(new GetTransactionDTO
+                    {
+                        Id = transaction.Id,
+                        IdUserTransmiter=transaction.IdUserTransmiter,
+                        DateTransacction=transaction.DateTransacction,
+                        IdLabelQr=transaction.IdLabelQr,
+                        Type = transaction.Type,
+                        Observations = transaction.Observations,
+                    });
+                }
+                response.IsSuccess = true;
+                response.Content = TransactionList;
+            }
+            catch (Exception ex)
+            {
+                response.ErrorMessage = ex.Message;
+                response.IsSuccess = false;
+            }
             return response;
         }
     }

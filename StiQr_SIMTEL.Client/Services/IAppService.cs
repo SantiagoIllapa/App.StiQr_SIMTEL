@@ -17,6 +17,6 @@ namespace StiQr_SIMTEL.Client.Services
         public Task<(bool IsSuccess, string ErrorMessage)> RegisterUser(RegisterUserDTO registrationModel);
         public Task<(List<GetLabelQrDTO> LabelsList, string ErrorMessage)> GetLabelsQr();
         public Task<(GetLabelQrDTO LabelQr, string ErrorMessage)> GetLabelQrById(int id);
-        public Task<(string ConfirmMessage, string ErrorMessage)> CheckHourLabelQr(CheckHourLabelQrDTO checkHourLabelQr, int id);
+        public Task<(string ConfirmMessage, string ErrorMessage)> CheckHourLabelQr(CheckHourDTO checkHourLabelQr, int id);
     }
 }

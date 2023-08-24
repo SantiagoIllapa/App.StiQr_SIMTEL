@@ -26,6 +26,15 @@ namespace StiQr_SIMTEL.Server.Controllers
             return HandleAPIResponse(response);
 
         }
+        
+        [HttpGet("GetTransactions")]
+        public async Task<IActionResult> GetTransactions()
+        {
+
+            var response = await _transactionService.GetTransactionAll();
+            return HandleAPIResponse(response);
+
+        }
         private IActionResult HandleAPIResponse<T>(ResponseAPI<T> response)
         {
             try

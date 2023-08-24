@@ -1,6 +1,7 @@
 ﻿@page "/LabelQRDetail"
-@using StiQr_SIMTEL.Client.Services;
-@using StiQr_SIMTEL.Shared.LabelsQR;
+@    using StiQr_SIMTEL.Client.Services;
+@    using StiQr_SIMTEL.Shared.LabelsQR;
+@    using StiQr_SIMTEL.Shared.Agents;
 @inject IAppService AppService;
 @inject IJSRuntime JSRuntime
 <div style="display: flex; justify-content: center;">
@@ -82,7 +83,7 @@
     }
     public async void CheckHourLabelQr()
     {
-        CheckHourLabelQrDTO checkHour = new CheckHourLabelQrDTO
+        CheckHourDTO checkHour = new CheckHourDTO
         {
                 LastMark = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil"))
         };
