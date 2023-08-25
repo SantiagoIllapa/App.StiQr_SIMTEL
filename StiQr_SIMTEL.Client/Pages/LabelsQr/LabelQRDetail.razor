@@ -1,5 +1,7 @@
 ﻿@page "/LabelQRDetail"
+@using CommunityToolkit.Maui.Views;
 @using Newtonsoft.Json;
+@using StiQr_SIMTEL.Client.MauiPages;
 @using StiQr_SIMTEL.Client.Models;
 @using StiQr_SIMTEL.Client.Services;
 @using StiQr_SIMTEL.Shared.LabelsQR;
@@ -7,13 +9,19 @@
 @inject IAppService AppService;
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavManager;
-<div style="display: flex; justify-content: center;">
+<button type="button" class="btn btn-primary" @onclick="OpenPopup"><span class="oi oi-camera-slr" aria-hidden="true" /></button>
+<br />
+<div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+    
     @if (_labelQrDetail == null)
     {
         <div class="d-flex justify-content-center">
             <div class="spinner-border" style="width: 5rem; height: 5rem; color:#144883; " role="status" />
         </div>
-        <p>@errorText</p>
+        <div class="d-flex justify-content-center">
+            <p>@errorText</p>
+        </div>
+        
     }
     else
     {
@@ -61,16 +69,19 @@
         </div>
     }
 </div>
+
+
 @code {
     bool isChecked = false;
     string errorText = string.Empty;
+    string _apiLabelURL = string.Empty;
     GetLabelQrDTO _labelQrDetail;
     int minLeft;
     UserBasicDetail userRecharger = new();
+    UrlEncryptor encryptor = new("hola12345");
 
 
-
-    protected override async Task OnInitializedAsync()
+    public async void FindLabelQr(string url)
     {
         string userDetails = await SecureStorage.GetAsync(nameof(Setting.UserBasicDetail));
 
@@ -88,7 +99,7 @@
         {
             NavManager.NavigateTo("/LoginPage");
         }
-        var response = await AppService.GetLabelQrById(2);
+        var response = await AppService.GetLabelQrByUrl(url);
 
         if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
         {
@@ -120,9 +131,28 @@
         }
         else
         {
-             await JSRuntime.InvokeVoidAsync("location.reload");
+            await JSRuntime.InvokeVoidAsync("location.reload");
             await App.Current.MainPage.DisplayAlert("Genial", response.ConfirmMessage, "OK");
-           
+
         }
+    }
+    private async void OpenPopup()
+    {
+        var result = await App.Current.MainPage.ShowPopupAsync(new CameraPopup());
+        if (result != null)
+        {
+            string resultstr= result.ToString();
+            string decryptstr = encryptor.DecryptUrl(resultstr);
+            if (!decryptstr.Contains("/api/LabelsQr/GetLabelsQrById"))
+            {
+                errorText = "Este código QR no corresponde a una etiqueta SIMTEL";
+            }
+            else
+            {
+                FindLabelQr(resultstr);
+            }
+
+        }
+        StateHasChanged();
     }
 }

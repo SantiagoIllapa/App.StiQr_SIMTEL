@@ -49,9 +49,6 @@ else
             </tbody>
         </table>
     </div>
-    <NavLink class="nav-link" href="/LabelQRDetail">
-        <span> EscanearCodigo</span>
-    </NavLink>
 }
 
 @code {
@@ -60,8 +57,6 @@ else
     string _error = string.Empty;
     protected override async Task OnInitializedAsync()
     {
-
-
         var response = await AppService.GetLabelsQr();
         if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
         {
@@ -72,6 +67,7 @@ else
             _labelList = response.LabelsList;
         }
     }
+
     // private async Task DeleteLabelQr(int id)
     // {
     //     var response = await AppService.DeleteLabelQr(id);
