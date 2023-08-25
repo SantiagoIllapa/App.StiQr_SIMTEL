@@ -18,6 +18,7 @@ namespace StiQr_SIMTEL.Shared.LabelsQR
         [Column(TypeName = "decimal(18, 2)")]
         [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = false)]
         [DataType(DataType.Currency, ErrorMessage = "El CashAmount debe ser un valor ")]
+        [Range(1, 20, ErrorMessage = "El monto a recargar debe ser unicamente de $1 a $20.")]
         public decimal CashAmount { get; set; }
     }
 }
