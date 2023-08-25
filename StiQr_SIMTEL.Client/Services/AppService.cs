@@ -128,8 +128,46 @@ namespace StiQr_SIMTEL.Client.Services
             }
             return (labelQr, errorMessage);
         }
+        public async Task<(GetLabelQrDTO LabelQr, string ErrorMessage)> GetLabelQrByPlate(string plate)
+        {
+            var labelQr = new GetLabelQrDTO();
+            string errorMessage = string.Empty;
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    var url = $"{_baseUrl}{APIs.GetLabelsQrByPlate}/{plate}";
+                    var apiResponse = await client.GetAsync(url);
+                    if (apiResponse.IsSuccessStatusCode)
+                    {
+
+
+                        var response = await apiResponse.Content.ReadAsStringAsync();
+                        var deserializeResponse = JsonConvert.DeserializeObject<ResponseAPI<GetLabelQrDTO>>(response);
+                        if (deserializeResponse.IsSuccess)
+                        {
+                            labelQr = deserializeResponse.Content;
+                        }
+                        else
+                        {
+                            errorMessage = deserializeResponse.ErrorMessage;
+                        }
+                    }
+                    else
+                    {
+                        errorMessage = "No se ha podido conectar con el servidor";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+            }
+            return (labelQr, errorMessage);
+        }
 
         public async Task<(string ConfirmMessage, string ErrorMessage)> CheckHourLabelQr(CheckHourDTO checkHourLabelQr)
+
         {
             string confirmMessage = string.Empty;
             string errorMessage = string.Empty;
@@ -158,6 +196,42 @@ namespace StiQr_SIMTEL.Client.Services
                     else
                     {
                         errorMessage = await apiResponse.Content.ReadAsStringAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+            }
+            return (confirmMessage, errorMessage);
+        }
+        public async Task<(string ConfirmMessage, string ErrorMessage)> RechargeLabelQr(RechargeCashDTO rechargeCashDTO)
+        {
+            string confirmMessage = string.Empty;
+            string errorMessage = string.Empty;
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    var url = $"{_baseUrl}{APIs.RechargeCash}";
+                    var serializeStr = JsonConvert.SerializeObject(rechargeCashDTO);
+                    var apiResponse = await client.PutAsync(url, new StringContent(serializeStr, Encoding.UTF8, "application/json"));
+                    if (apiResponse.IsSuccessStatusCode)
+                    {
+                        var response = await apiResponse.Content.ReadAsStringAsync();
+                        var deserializeResponse = JsonConvert.DeserializeObject<ResponseAPI<string>>(response);
+                        if (deserializeResponse.IsSuccess)
+                        {
+                            confirmMessage = deserializeResponse.Content;
+                        }
+                        else
+                        {
+                            errorMessage = deserializeResponse.ErrorMessage;
+                        }
+                    }
+                    else
+                    {
+                        errorMessage = "No se ha podido conectar con el servidor";
                     }
                 }
             }

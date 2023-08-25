@@ -1,7 +1,14 @@
 ﻿@page "/LabelQrRecharge"
 @using System.Text.RegularExpressions;
+@using Newtonsoft.Json;
 @using StiQr_SIMTEL.Client.Models;
-<h3>Recarga de Etiqueta</h3>
+@using StiQr_SIMTEL.Client.Services;
+@using StiQr_SIMTEL.Shared.LabelsQR;
+@using System.IdentityModel.Tokens.Jwt;
+@inject IAppService AppService;
+@inject NavigationManager NavManager;
+
+<h2>Recarga de Etiqueta</h2>
 
 <EditForm Model="@searchModel" OnValidSubmit="SearchPlate">
     <div class="mb-3">
@@ -24,7 +31,18 @@
 <div style="display: flex; justify-content: center;">
     <div style="position: relative; width: 325px; height: 200px;">
         <img src="img/plate.png" alt="Plate" style="width: 100%; height: 100%;" />
-        <p class="fs-1" style="position: absolute; top: 40%; left: 23%; overflow-y: auto;">@plateText</p>
+        @if (@_isSearching)
+        {
+            <div style="position: absolute; top: 45%; left: 45%;">
+                <div class="spinner-border" style="width: 2rem; height: 2rem; color:#144883; " role="status" />
+            </div>
+        }
+        else
+        {
+            <p class="fs-1" style="position: absolute; top: 40%; left: 23%; overflow-y: auto;"> <span class="@_spinnerClass" role="status" aria-hiden="true"></span>@plateText</p>
+        }
+
+        
     </div>
 </div>
 
@@ -33,7 +51,7 @@
 <div class="mb-3">
     <div class="input-group">
         <span class="input-group-text">$</span>
-        <input type="text" class="form-control">
+        <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" maxlength="2" @bind-value="rechargeDTO.CashAmount">
         <span class="input-group-text">.00</span>
         <button type="button" class=" btn btn-secondary" @onclick="MostrarConfirmacion">
             <span class="oi oi-dollar" aria-hidden="true"></span> Recargar
@@ -49,11 +67,11 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Confirmación</h5>
+                    <h5 class="modal-title">Recarga</h5>
 
                 </div>
                 <div class="modal-body">
-                    ¿Estás seguro de que deseas realizar esta acción?
+                    ¿Estás seguro de que deseas Recargar $@rechargeDTO.CashAmount a la etiqueta con placa @labelDTO.Plate ?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @onclick="CerrarConfirmacion">Cancelar</button>
@@ -70,13 +88,52 @@
     string textClass = "--bs-danger-text-emphasis";
     string errorText = "";
     string infoText = "";
-
+    string _spinnerClass = "";
+    bool _isSearching = false;
+    string _codeStr = "";
     SearchPlate searchModel = new();
+    GetLabelQrDTO labelDTO;
+    RechargeCashDTO rechargeDTO = new();
+    UserBasicDetail userRecharger = new();
+    protected async override Task OnInitializedAsync()
+    {
+        string userDetails = await SecureStorage.GetAsync(nameof(Setting.UserBasicDetail));
+
+        if (!string.IsNullOrWhiteSpace(userDetails))
+        {
+            var userBasicDetail = JsonConvert.DeserializeObject<UserBasicDetail>(userDetails);
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(userBasicDetail.Token) as JwtSecurityToken;
+            if (jsonToken.ValidTo > DateTime.UtcNow)
+            {
+                userRecharger = userBasicDetail;
+            }
+        }
+        else
+        {
+            NavManager.NavigateTo("/LoginPage");
+        }
+    }
     private bool mostrarModal = false;
 
     private void MostrarConfirmacion()
     {
-        mostrarModal = true;
+        if (labelDTO!=null){
+
+            if (rechargeDTO.CashAmount < 1 || rechargeDTO.CashAmount>20)
+            {
+                errorText = "Por favor, Ingrese un monto entre $1 - $20";
+            }
+            else
+            {
+                mostrarModal = true;
+            }
+        }
+        else
+        {
+            errorText = "Por favor, primero digite la placa a recargar";
+        }
+        this.StateHasChanged();
     }
 
     private void CerrarConfirmacion()
@@ -91,28 +148,61 @@
         RechargeLabelQr();
     }
 
-    private void SearchPlate()
+    private async void SearchPlate()
     {
-        plateText = searchModel.PlateCode + "-" + searchModel.PlateNumber;
+        labelDTO = null;
+        plateText = "";
+        errorText = "";
+        _isSearching = true;
+        var response = await AppService.GetLabelQrByPlate(searchModel.PlateCode + "-" + searchModel.PlateNumber);
+        _isSearching = false;
+        if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
+        {
+            // await App.Current.MainPage.DisplayAlert("Oops", response.ErrorMessage, "OK");
+            errorText = "Oops " + response.ErrorMessage;
+        }
+        else
+        {
+
+            plateText = searchModel.PlateCode + "-" + searchModel.PlateNumber;
+            labelDTO = response.LabelQr;
+        }
+        this.StateHasChanged();
     }
-    private void RechargeLabelQr()
+    private async void RechargeLabelQr()
     {
 
+        rechargeDTO.IdLabelQr = labelDTO.Id;
+        rechargeDTO.IdUserRecharger = userRecharger.UserID;
+
+        var response = await AppService.RechargeLabelQr(rechargeDTO);
+        if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
+        {
+            await App.Current.MainPage.DisplayAlert("Oops", response.ErrorMessage, "OK");
+            errorText = "Oops" + response.ErrorMessage;
+
+        }
+        else
+        {
+
+            await App.Current.MainPage.DisplayAlert("Success", response.ConfirmMessage, "OK");
+        }
+        this.StateHasChanged();
     }
 
     private void ValidateCode(ChangeEventArgs e)
     {
         errorText = "";
         string nuevoValor = e.Value.ToString();
-
-        if (nuevoValor.Length > 0)
+        if (!Regex.IsMatch(nuevoValor, "^[A-Za-z]*$"))
         {
-            int val = (int)nuevoValor[^1];
-            if (!Regex.IsMatch(nuevoValor, "^[A-Za-z]*$"))
-            {
-                errorText = "Por favor ingrese una placa válida";
-            }
+            searchModel.PlateCode = _codeStr;
         }
+        else
+        {
+            _codeStr = searchModel.PlateCode;
+        }
+        this.StateHasChanged();
     }
 
     private void ValidateNumber(ChangeEventArgs e)
@@ -128,5 +218,6 @@
             // El valor ingresado es válido
             searchModel.PlateNumber = input;
         }
+        this.StateHasChanged();
     }
 }
