@@ -129,7 +129,7 @@ namespace StiQr_SIMTEL.Client.Services
             return (labelQr, errorMessage);
         }
 
-        public async Task<(string ConfirmMessage, string ErrorMessage)> CheckHourLabelQr(CheckHourDTO checkHourLabelQr, int id)
+        public async Task<(string ConfirmMessage, string ErrorMessage)> CheckHourLabelQr(CheckHourDTO checkHourLabelQr)
         {
             string confirmMessage = string.Empty;
             string errorMessage = string.Empty;
@@ -137,8 +137,9 @@ namespace StiQr_SIMTEL.Client.Services
             {
                 using (var client = new HttpClient())
                 {
-                    var url = $"{_baseUrl}{APIs.CheckHourLabelQr}/{id}";
+                    var url = $"{_baseUrl}{APIs.CheckHourLabelQr}";
                     var serializeStr = JsonConvert.SerializeObject(checkHourLabelQr);
+                    Debug.WriteLine(serializeStr);
                     var apiResponse = await client.PutAsync(url, new StringContent(serializeStr, Encoding.UTF8, "application/json"));
                     if (apiResponse.IsSuccessStatusCode)
                     {
@@ -156,7 +157,7 @@ namespace StiQr_SIMTEL.Client.Services
                     }
                     else
                     {
-                        errorMessage = "No se ha podido conectar con el servidor";
+                        errorMessage = await apiResponse.Content.ReadAsStringAsync();
                     }
                 }
             }
