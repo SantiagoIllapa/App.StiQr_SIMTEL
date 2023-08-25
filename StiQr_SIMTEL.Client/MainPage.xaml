@@ -3,8 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:StiQr_SIMTEL.Client"
              x:Class="StiQr_SIMTEL.Client.MainPage"
-             BackgroundColor="{DynamicResource PageBackgroundColor}">
-
+             BackgroundColor="{DynamicResource PageBackgroundColor}"
+             NavigationPage.HasNavigationBar="False">
+                
     <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>
             <RootComponent Selector="#app" ComponentType="{x:Type local:Main}" />

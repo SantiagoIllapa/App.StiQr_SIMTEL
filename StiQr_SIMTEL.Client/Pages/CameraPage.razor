@@ -1,0 +1,25 @@
+﻿@using CommunityToolkit.Maui.Views;
+@using MauiPages;
+@using System.Diagnostics;
+@page "/CameraPage"
+<button class="btn btn-primary" @onclick="OpenPopup">Open MAUI Popup</button>
+
+<input @bind="_localBarcodeText" />
+ 
+
+@code {
+    string _localBarcodeText;
+
+    private async void OpenPopup()
+    {
+        var result = await App.Current.MainPage.ShowPopupAsync(new CameraPopup());
+        if(result != null)
+        {
+            _localBarcodeText = result.ToString();
+        }
+        
+       
+        
+        StateHasChanged();
+    }
+}
