@@ -1,8 +1,12 @@
 ﻿@page "/LabelQRDetail"
+@using Newtonsoft.Json;
+@using StiQr_SIMTEL.Client.Models;
 @using StiQr_SIMTEL.Client.Services;
 @using StiQr_SIMTEL.Shared.LabelsQR;
+@using System.IdentityModel.Tokens.Jwt;
 @inject IAppService AppService;
 @inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager;
 <div style="display: flex; justify-content: center;">
     @if (_labelQrDetail == null)
     {
@@ -62,9 +66,30 @@
     string errorText = string.Empty;
     GetLabelQrDTO _labelQrDetail;
     int minLeft;
+    UserBasicDetail userRecharger = new();
+
+
+
     protected override async Task OnInitializedAsync()
     {
+        string userDetails = await SecureStorage.GetAsync(nameof(Setting.UserBasicDetail));
+
+        if (!string.IsNullOrWhiteSpace(userDetails))
+        {
+            var userBasicDetail = JsonConvert.DeserializeObject<UserBasicDetail>(userDetails);
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(userBasicDetail.Token) as JwtSecurityToken;
+            if (jsonToken.ValidTo > DateTime.UtcNow)
+            {
+                userRecharger = userBasicDetail;
+            }
+        }
+        else
+        {
+            NavManager.NavigateTo("/LoginPage");
+        }
         var response = await AppService.GetLabelQrById(2);
+
         if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
         {
             errorText = "Oops" + response.ErrorMessage;
@@ -83,10 +108,12 @@
     public async void CheckHourLabelQr()
     {
         CheckHourDTO checkHour = new CheckHourDTO
-        {
-                LastMark = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil"))
+            {
+                LastMark = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil")),
+                IdLabelQr = _labelQrDetail.Id,
+                IdUserRecharger = userRecharger.UserID,
         };
-        var response = await AppService.CheckHourLabelQr(checkHour, 2);
+        var response = await AppService.CheckHourLabelQr(checkHour);
         if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
         {
             await App.Current.MainPage.DisplayAlert("Oops", response.ErrorMessage, "OK");

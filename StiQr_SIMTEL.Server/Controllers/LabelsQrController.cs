@@ -49,8 +49,8 @@ namespace StiQr_SIMTEL.Server.Controllers
             var response = await _labelQrService.GetLabelQrByPlate(plate);
             return HandleAPIResponse(response);
         }
-        [HttpPut("CheckHourLabelQR")]
-        public async Task<IActionResult> CheckHourLabelQR([FromBody] CheckHourDTO checkHour)
+        [HttpPut("CheckHourLabelQr")]
+        public async Task<IActionResult> CheckHourLabelQr([FromBody] CheckHourDTO checkHour)
         {
             var response = await _labelQrService.CheckHourLabelQR(checkHour);
             if (response.IsSuccess)
