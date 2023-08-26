@@ -23,11 +23,12 @@
                 <span class="oi oi-magnifying-glass" aria-hidden="true"></span>
             </button>
         </div>
-        <div class="form-text --bs-danger-text-emphasis" id="basic-addon4">@errorText</div>
-        <div class="form-text @textClass" id="basic-addon4">@infoText</div>
+
     </div>
 </EditForm>
-
+<div class="@_notifierClass" role="alert">
+    @notifierText
+</div>
 <div style="display: flex; justify-content: center;">
     <div style="position: relative; width: 325px; height: 200px;">
         <img src="img/plate.png" alt="Plate" style="width: 100%; height: 100%;" />
@@ -42,7 +43,7 @@
             <p class="fs-1" style="position: absolute; top: 40%; left: 23%; overflow-y: auto;"> <span class="@_spinnerClass" role="status" aria-hiden="true"></span>@plateText</p>
         }
 
-        
+
     </div>
 </div>
 
@@ -84,10 +85,10 @@
 
 
 @code {
+    private string _notifierClass = "";
+    private string notifierText = "";
     string plateText = "";
-    string textClass = "--bs-danger-text-emphasis";
-    string errorText = "";
-    string infoText = "";
+
     string _spinnerClass = "";
     bool _isSearching = false;
     string _codeStr = "";
@@ -118,11 +119,15 @@
 
     private void MostrarConfirmacion()
     {
-        if (labelDTO!=null){
+        if (labelDTO != null)
+        {
 
-            if (rechargeDTO.CashAmount < 1 || rechargeDTO.CashAmount>20)
+            if (rechargeDTO.CashAmount < 1 || rechargeDTO.CashAmount > 20)
             {
-                errorText = "Por favor, Ingrese un monto entre $1 - $20";
+                notifierText = "Por favor, Ingrese un monto entre $1 - $20";
+                _notifierClass = "alert alert-warning";
+                StateHasChanged();
+
             }
             else
             {
@@ -131,9 +136,13 @@
         }
         else
         {
-            errorText = "Por favor, primero digite la placa a recargar";
+            notifierText = "Por favor, primero digite la placa a recargar";
+            _notifierClass = "alert alert-warning";
+            StateHasChanged();
+
         }
-        this.StateHasChanged();
+        
+        DesapearNotifier();
     }
 
     private void CerrarConfirmacion()
@@ -152,22 +161,26 @@
     {
         labelDTO = null;
         plateText = "";
-        errorText = "";
+        notifierText = "";
         _isSearching = true;
         var response = await AppService.GetLabelQrByPlate(searchModel.PlateCode + "-" + searchModel.PlateNumber);
         _isSearching = false;
         if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
         {
-            // await App.Current.MainPage.DisplayAlert("Oops", response.ErrorMessage, "OK");
-            errorText = "Oops " + response.ErrorMessage;
+
+            notifierText = "Oops " + response.ErrorMessage;
+            _notifierClass = "alert alert-danger";
+            StateHasChanged();
         }
         else
         {
-
-            plateText = searchModel.PlateCode + "-" + searchModel.PlateNumber;
             labelDTO = response.LabelQr;
+            plateText = searchModel.PlateCode + "-" + searchModel.PlateNumber;
+            notifierText = "Placa encontrada";
+            _notifierClass = "alert alert-success";
+            StateHasChanged();
         }
-        this.StateHasChanged();
+        DesapearNotifier();
     }
     private async void RechargeLabelQr()
     {
@@ -178,21 +191,24 @@
         var response = await AppService.RechargeLabelQr(rechargeDTO);
         if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
         {
-            await App.Current.MainPage.DisplayAlert("Oops", response.ErrorMessage, "OK");
-            errorText = "Oops" + response.ErrorMessage;
 
+            notifierText = "Oops" + response.ErrorMessage;
+            _notifierClass = "alert alert-danger";
+            StateHasChanged();
         }
         else
         {
-
-            await App.Current.MainPage.DisplayAlert("Success", response.ConfirmMessage, "OK");
+            notifierText = response.ConfirmMessage;
+            _notifierClass = "alert alert-success";
+            StateHasChanged();
         }
+        DesapearNotifier();
         this.StateHasChanged();
     }
 
     private void ValidateCode(ChangeEventArgs e)
     {
-        errorText = "";
+
         string nuevoValor = e.Value.ToString();
         if (!Regex.IsMatch(nuevoValor, "^[A-Za-z]*$"))
         {
@@ -219,5 +235,12 @@
             searchModel.PlateNumber = input;
         }
         this.StateHasChanged();
+    }
+    private async void DesapearNotifier()
+    {
+        await Task.Delay(3000);
+        _notifierClass = "";
+        notifierText = "";
+        StateHasChanged();
     }
 }

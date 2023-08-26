@@ -37,7 +37,7 @@ namespace StiQr_SIMTEL.Server.Services
                         {
                             UserEmail = LabelQrDTO.UserEmail,
                             Plate = LabelQrDTO.Plate,
-                            LastMark = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil")),
+                            LastMark = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil")).AddDays(-1),
                             Amount = 0
                         });
                         await _dbContext.SaveChangesAsync();
@@ -81,6 +81,7 @@ namespace StiQr_SIMTEL.Server.Services
                         LastMark = label.LastMark,
                         UserEmail = label.UserEmail,
                         Plate = label.Plate,
+                        Amount= label.Amount,
                         ExpiredDateMark = label.LastMark.AddHours(1)
                     });
                 }
@@ -109,6 +110,7 @@ namespace StiQr_SIMTEL.Server.Services
                         Plate = dbLabelQr.Plate,
                         UserEmail = dbLabelQr.UserEmail,
                         LastMark = dbLabelQr.LastMark,
+                        Amount= dbLabelQr.Amount,
                         ExpiredDateMark = dbLabelQr.LastMark.AddHours(1)
                     };
                     response.IsSuccess = true;
@@ -142,6 +144,7 @@ namespace StiQr_SIMTEL.Server.Services
                         Plate = dbLabelQr.Plate,
                         UserEmail = dbLabelQr.UserEmail,
                         LastMark = dbLabelQr.LastMark,
+                        Amount= dbLabelQr.Amount,
                         ExpiredDateMark = dbLabelQr.LastMark.AddHours(1)
                     };
                     response.IsSuccess = true;
@@ -160,6 +163,62 @@ namespace StiQr_SIMTEL.Server.Services
             }
             return response;
 
+        }
+        public async Task<ResponseAPI<string>> UpdateLabelQr(CreateLabelQrDTO labelDto, int id)
+        {
+            var response = new ResponseAPI<string>();
+            try
+            {
+                var dbLabelQr = await _dbContext.LabelsQr.FirstOrDefaultAsync(l => l.Id == id);
+                if (dbLabelQr != null)
+                {
+                    dbLabelQr.UserEmail = labelDto.UserEmail;
+                    dbLabelQr.Plate = labelDto.Plate;
+                    await _dbContext.SaveChangesAsync();
+                    response.IsSuccess = true;
+                    response.Content = "Etiqueta actualizada correctamente";
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.ErrorMessage = "No existe una EtiquetaQr con este id";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response.ErrorMessage = ex.Message;
+                response.IsSuccess = false;
+            }
+            return response;
+        }
+        public async Task<ResponseAPI<string>> DeleteLabelQr(int id)
+        {
+            var response = new ResponseAPI<string>();
+            try
+            {
+                var dbLabelQr = await _dbContext.LabelsQr.FirstOrDefaultAsync(l => l.Id == id);
+                if (dbLabelQr != null)
+                {
+                    
+                     _dbContext.Remove(dbLabelQr);
+                    await _dbContext.SaveChangesAsync();
+                    response.IsSuccess = true;
+                    response.Content = "Etiqueta eliminada correctamente";
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.ErrorMessage = "No existe una EtiquetaQr con este id";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response.ErrorMessage = ex.Message;
+                response.IsSuccess = false;
+            }
+            return response;
         }
         public async Task<ResponseAPI<string>> RechargeCash(RechargeCashDTO rechargeDTO)
         {

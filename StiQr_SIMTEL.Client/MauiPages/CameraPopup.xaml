@@ -4,14 +4,9 @@
            xmlns:mct="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
            xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI"
            x:Class="StiQr_SIMTEL.Client.MauiPages.CameraPopup">
-    <VerticalStackLayout
-
-    VerticalOptions="Center">
+    <VerticalStackLayout VerticalOptions="Center">
         
-        <zxing:CameraBarcodeReaderView  WidthRequest="300" HeightRequest="300"
-            x:Name="scanner"
-            
-            IsDetecting="True" IsTorchOn="False" BarcodesDetected="ScannerDetected"/>
+        <zxing:CameraBarcodeReaderView  WidthRequest="300" HeightRequest="300"    x:Name="scanner"  IsDetecting="True" IsTorchOn="False" BarcodesDetected="ScannerDetected"/>
        
     </VerticalStackLayout>
 </mct:Popup>

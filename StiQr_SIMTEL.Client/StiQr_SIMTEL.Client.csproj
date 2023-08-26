@@ -114,5 +114,17 @@
       <ProjectReference Include="..\StiQr_SIMTEL.Shared\StiQr_SIMTEL.Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="MauiPages\GeneratorPopup.xaml.cs">
+        <DependentUpon>GeneratorPopup.xaml</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <MauiXaml Update="MauiPages\GeneratorPopup.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+    </ItemGroup>
+
 
 </Project>

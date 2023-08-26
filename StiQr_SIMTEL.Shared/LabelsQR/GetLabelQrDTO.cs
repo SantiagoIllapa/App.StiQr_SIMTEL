@@ -16,5 +16,6 @@ namespace StiQr_SIMTEL.Shared.LabelsQR
         public DateTime LastMark { get; set; }
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime ExpiredDateMark { get; set; }
+        public decimal Amount { get; set; }
     }
 }
