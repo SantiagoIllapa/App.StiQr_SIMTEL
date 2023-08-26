@@ -1,5 +1,7 @@
 ﻿@page "/LabelQRDetail"
+@using CommunityToolkit.Maui.Views;
 @using Newtonsoft.Json;
+@using StiQr_SIMTEL.Client.MauiPages;
 @using StiQr_SIMTEL.Client.Models;
 @using StiQr_SIMTEL.Client.Services;
 @using StiQr_SIMTEL.Shared.LabelsQR;
@@ -7,15 +9,18 @@
 @inject IAppService AppService;
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavManager;
-<div style="display: flex; justify-content: center;">
-    @if (_labelQrDetail == null)
+<button type="button" class="btn btn-primary" @onclick="OpenPopup"><span class="oi oi-camera-slr" aria-hidden="true" /></button>
+<br />
+<br />
+<div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+   
+    @if (_loadingLabel)
     {
         <div class="d-flex justify-content-center">
             <div class="spinner-border" style="width: 5rem; height: 5rem; color:#144883; " role="status" />
         </div>
-        <p>@errorText</p>
     }
-    else
+    @if (_labelQrDetail!= null)
     {
         <div class="card text-center" style="width: 18rem;">
             @* <img class="card-img-top" style="background-color:yellow" src="" alt="Código QR"> *@
@@ -61,19 +66,28 @@
         </div>
     }
 </div>
+<div class="@_notifierClass" role="alert">
+    @notifierText
+</div>
+
+
 @code {
+   
     bool isChecked = false;
-    string errorText = string.Empty;
+    bool _loadingLabel = false;
+    private string _notifierClass = "";
+    private string notifierText = "";
+    string _apiLabelURL = string.Empty;
     GetLabelQrDTO _labelQrDetail;
     int minLeft;
     UserBasicDetail userRecharger = new();
+    UrlEncryptor encryptor = new("9C7F8B26A4E3D1F59C7F8B26A4E3D1F5");
 
-
-
-    protected override async Task OnInitializedAsync()
+    public async void FindLabelQr(string url)
     {
+        _loadingLabel = true;
         string userDetails = await SecureStorage.GetAsync(nameof(Setting.UserBasicDetail));
-
+     
         if (!string.IsNullOrWhiteSpace(userDetails))
         {
             var userBasicDetail = JsonConvert.DeserializeObject<UserBasicDetail>(userDetails);
@@ -88,14 +102,18 @@
         {
             NavManager.NavigateTo("/LoginPage");
         }
-        var response = await AppService.GetLabelQrById(2);
-
+        StateHasChanged();
+        var response = await AppService.GetLabelQrByUrl(url);
+        _loadingLabel = false;
         if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
         {
-            errorText = "Oops" + response.ErrorMessage;
+            _notifierClass = "alert alert-danger";
+            notifierText = "Oops" + response.ErrorMessage;
+            StateHasChanged();
         }
         else
         {
+            _labelQrDetail = new();
             _labelQrDetail = response.LabelQr;
             DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil"));
             minLeft = (int)Math.Round((_labelQrDetail.ExpiredDateMark - now).TotalMinutes);
@@ -103,7 +121,10 @@
             {
                 isChecked = true;
             }
+            StateHasChanged();
         }
+
+        DesapearNotifier();
     }
     public async void CheckHourLabelQr()
     {
@@ -116,13 +137,52 @@
         var response = await AppService.CheckHourLabelQr(checkHour);
         if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
         {
-            await App.Current.MainPage.DisplayAlert("Oops", response.ErrorMessage, "OK");
+            _notifierClass = "alert alert-danger";
+            notifierText = response.ErrorMessage;
+            StateHasChanged();
         }
         else
         {
-             await JSRuntime.InvokeVoidAsync("location.reload");
-            await App.Current.MainPage.DisplayAlert("Genial", response.ConfirmMessage, "OK");
-           
+            isChecked = true;
+            _notifierClass = "alert alert-success";
+            notifierText = response.ConfirmMessage;
+            StateHasChanged();
+
         }
+        DesapearNotifier();
+    }
+    private async void OpenPopup()
+    {
+        var result = await App.Current.MainPage.ShowPopupAsync(new CameraPopup());
+        if (result != null)
+        {
+            string resultstr= result.ToString();
+            
+            // string decryptstr = encryptor.DecryptUrl(resultstr);
+            if (!resultstr.Contains("/api/LabelsQr/GetLabelsQrById"))
+            {
+
+                _notifierClass = "alert alert-warning";
+                notifierText = "Este código QR no corresponde a una etiqueta SIMTEL";
+                StateHasChanged();
+            }
+            else
+            {
+                string resultUrl = resultstr.Replace(" QrCode", "");
+                _notifierClass = "alert alert-success";
+                notifierText = "Accediendo a la etiqueta SIMTEL";
+                FindLabelQr(resultUrl);
+            }
+            DesapearNotifier();
+        }
+
+
+    }
+    private async void DesapearNotifier()
+    {
+        await Task.Delay(3000);
+        _notifierClass = "";
+        notifierText = "";
+        StateHasChanged();
     }
 }

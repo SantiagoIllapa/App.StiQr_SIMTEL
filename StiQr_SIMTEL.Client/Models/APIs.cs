@@ -15,5 +15,10 @@ namespace StiQr_SIMTEL.Client.Models
         public const string CheckHourLabelQr = "/api/LabelsQr/CheckHourLabelQr";
         public const string RechargeCash = "/api/LabelsQr/RechargeCash";
         public const string GetLabelsQrByPlate = "/api/LabelsQr/GetLabelsQrByPlate";
+        public const string RegisterLabelQr = "/api/LabelsQr/RegisterLabelQr";
+        public const string UpdateLabelQr = "/api/LabelsQr/UpdateLabelQr";
+        public const string DeleteLabelQr = "/api/LabelsQr/DeleteLabelQr";
+        public const string GetTransactions = "/api/Transactions/GetTransactions";
+
     }
 }

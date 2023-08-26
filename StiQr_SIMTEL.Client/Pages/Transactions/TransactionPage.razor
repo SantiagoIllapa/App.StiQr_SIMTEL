@@ -1,0 +1,94 @@
+﻿@page "/TransactionPage"
+@using CommunityToolkit.Maui.Views;
+@using StiQr_SIMTEL.Client.MauiPages;
+@using StiQr_SIMTEL.Client.Models;
+@using StiQr_SIMTEL.Client.Services;
+@using StiQr_SIMTEL.Shared.LabelQR;
+@using StiQr_SIMTEL.Shared.LabelsQR;
+@using System.Diagnostics;
+@using StiQr_SIMTEL.Shared.Transactions;
+@inject IAppService AppService;
+<h1>Lista de Transacciones</h1>
+<div class="@_notifierClass" role="alert">
+    @notifierText
+</div>
+
+@if (_transactionList == null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" style="width: 5rem; height: 5rem; color:#144883; " role="status" />
+    </div>
+    <p>@errorText</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Agente</th>
+                    <th>Etiqueta</th>
+                    <th>Tipo</th>
+                    <th>Fecha</th>
+                    <th>Monto</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var transaction in _transactionList)
+                {
+                    <tr class="@(transaction.Type == 0 ? "alert alert-success" : "alert alert-danger")">
+                        <td>@transaction.Id</td>
+                        <td>@transaction.IdUserTransmiter</td>
+                        <td>@transaction.IdLabelQr</td>
+                        <td><p>@(transaction.Type == 0 ? "Abono" : "Cobro")</p></td>
+                        <td>@transaction.DateTransacction</td>
+                        <td>@transaction.Amount</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+@code {
+    string errorText = "";
+    List<GetTransactionDTO> _transactionList;
+
+
+    private string _spinnerClass = "";
+    private string _notifierClass = "";
+    private string notifierText = "";
+    int editingId;
+    int deletingId;
+    string _error = string.Empty;
+    bool _showCreateModal = false;
+    bool _showEditModal = false;
+    bool _showDeleteModal = false;
+    UrlEncryptor encryptor = new("9C7F8B26A4E3D1F59C7F8B26A4E3D1F5");
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await AppService.GetTransactions();
+        if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
+        {
+            errorText = "Oops " + response.ErrorMessage;
+        }
+        else
+        {
+            _transactionList = response.TransactionList;
+        }
+    }
+    private void Refresh()
+    {
+        StateHasChanged();
+    }
+    private async void DesapearNotifier()
+    {
+        await Task.Delay(3000);
+        _notifierClass = "";
+        notifierText = "";
+        StateHasChanged();
+    }
+
+
+}

@@ -1,10 +1,17 @@
 ﻿@page "/LabelPage"
+@using CommunityToolkit.Maui.Views;
+@using StiQr_SIMTEL.Client.MauiPages;
+@using StiQr_SIMTEL.Client.Models;
 @using StiQr_SIMTEL.Client.Services;
+@using StiQr_SIMTEL.Shared.LabelQR;
 @using StiQr_SIMTEL.Shared.LabelsQR;
 @using System.Diagnostics;
 @inject IAppService AppService;
 <h1>Administración de EtiquetasQR</h1>
-
+<div class="@_notifierClass" role="alert">
+    @notifierText
+</div>
+<button type="button" class="btn btn-primary" @onclick="OpenCreateModal"><span class="oi oi-plus" aria-hidden="true" /> Crear Etiqueta</button>
 
 @if (_labelList == null)
 {
@@ -23,23 +30,29 @@ else
                     <th>Placa</th>
                     <th>Ultima marca</th>
                     <th>Email Conductor</th>
+                    <th>Balance</th>
                     <th>Acciones</th>
+                    <th> <span class="oi oi-loop-circular" style="color: grey;" aria-hidden="true" @onclick="Refresh"></span></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var user in _labelList)
+                @foreach (var label in _labelList)
                 {
                     <tr>
-                        <td>@user.Id</td>
-                        <td>@user.Plate</td>
-                        <td>@user.LastMark</td>
-                        <td>@user.UserEmail</td>
+                        <td>@label.Id</td>
+                        <td>@label.Plate</td>
+                        <td>@label.LastMark</td>
+                        <td>@label.UserEmail</td>
+                        <td>@label.Amount</td>
                         <td>
-                            <button class="btn btn-info" type="button">
+                            <button class="btn btn-info" type="button" @onclick="() => GenerateQR(label.Id,label.Plate)">
+                                <span class="oi oi-grid-three-up" style="color: white;" aria-hidden="true"></span>
+                            </button>
+                            <button class="btn btn-info" type="button" @onclick="() => OpenEditModal(label.Id)">
 
                                 <span class="oi oi-pencil" style="color: white;" aria-hidden="true"></span>
                             </button>
-                            <button class="btn btn-danger" type="button" >
+                            <button class="btn btn-danger" type="button" @onclick="() => OpenConfirmDelete(label.Id)">
 
                                 <span class="oi oi-trash" aria-hidden="true"></span>
                             </button>
@@ -49,19 +62,120 @@ else
             </tbody>
         </table>
     </div>
-    <NavLink class="nav-link" href="/LabelQRDetail">
-        <span> EscanearCodigo</span>
-    </NavLink>
+}
+@if (_showCreateModal)
+{
+    <div class="modal fade show" style="display: block; background: rgba(0, 0, 0, 0.5);" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Creación Nueva etiqueta Qr</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@_createLabel" OnValidSubmit="AddLabelQr">
+                        <DataAnnotationsValidator />
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input @bind="_createLabel.UserEmail" class="form-control" placeholder="example">
+                            <ValidationMessage For="@(()=>_createLabel.UserEmail)" />
+                        </div>
+                        <div class="form-group">
+                            <label>Placa</label>
+                            <input @bind="_createLabel.Plate" class="form-control" placeholder="example">
+                            <ValidationMessage For="@(()=> _createLabel.Plate)" />
+                        </div>
+                    </EditForm>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="AddLabelQr">
+                        <span class="@_spinnerClass" role="status" aria-hidden="true"></span>
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@if (_showEditModal)
+{
+    <div class="modal fade show" style="display: block; background: rgba(0, 0, 0, 0.5);" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar etiqueta Qr</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Id</label>
+                        <input value="@editingId" class="form-control" placeholder="example" disabled>
+                    </div>
+                    <EditForm Model="@_editLabel" OnValidSubmit="AddLabelQr">
+                        <DataAnnotationsValidator />
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input @bind="_editLabel.UserEmail" class="form-control" placeholder="example">
+                            <ValidationMessage For="@(()=>_editLabel.UserEmail)" />
+                        </div>
+                        <div class="form-group">
+                            <label>Placa</label>
+                            <input @bind="_editLabel.Plate" class="form-control" placeholder="example">
+                            <ValidationMessage For="@(()=> _editLabel.Plate)" />
+                        </div>
+                    </EditForm>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="EditLabelQr">
+                        <span class="@_spinnerClass" role="status" aria-hidden="true"></span>
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
+@if (_showDeleteModal)
+{
+    <div class="modal fade show" style="display: block; background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Recarga</h5>
+
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas Eliminar esta etiqueta?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteLabelQr">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 @code {
     string errorText = "";
     List<GetLabelQrDTO> _labelList;
+    CreateLabelQrDTO _createLabel;
+    CreateLabelQrDTO _editLabel;
+
+    private string _spinnerClass = "";
+    private string _notifierClass = "";
+    private string notifierText = "";
+    int editingId;
+    int deletingId;
     string _error = string.Empty;
+    bool _showCreateModal = false;
+    bool _showEditModal = false;
+    bool _showDeleteModal = false;
+    UrlEncryptor encryptor = new("9C7F8B26A4E3D1F59C7F8B26A4E3D1F5");
     protected override async Task OnInitializedAsync()
     {
-
-
         var response = await AppService.GetLabelsQr();
         if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
         {
@@ -72,9 +186,97 @@ else
             _labelList = response.LabelsList;
         }
     }
-    // private async Task DeleteLabelQr(int id)
-    // {
-    //     var response = await AppService.DeleteLabelQr(id);
+    private void Refresh()
+    {
+        StateHasChanged();
+    }
+    private async void GenerateQR(int id,string plate)
+    {
         
-    // }
+        string url = "http://192.168.100.17:9095/api/LabelsQr/GetLabelsQrById/" + id;
+        // string cryptstr = encryptor.EncryptUrl(url);
+        // Debug.WriteLine(cryptstr);
+        var result = await App.Current.MainPage.ShowPopupAsync(new GeneratorPopup(url, plate));
+        StateHasChanged();
+    }
+    private void OpenCreateModal()
+    {
+        _createLabel = new();
+        _showCreateModal = true;
+    }
+    private void OpenEditModal(int id)
+    {
+        editingId = id;
+        _editLabel = new();
+        _showEditModal = true;
+    }
+    private void OpenConfirmDelete(int id)
+    {
+        deletingId = id;
+        _showDeleteModal = true;
+    }
+    private void CloseModal()
+    {
+        _showCreateModal = _showEditModal = _showDeleteModal = _showDeleteModal = false;
+    }
+    private async Task AddLabelQr()
+    {
+        var response = await AppService.CreateLabelQr(_createLabel);
+        if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
+        {
+            notifierText = "Oops " + response.ErrorMessage;
+            _notifierClass = "alert alert-danger";
+        }
+        else
+        {
+            notifierText = response.ConfirmMessage;
+            _notifierClass = "alert alert-success";
+
+        }
+
+
+        CloseModal();
+        DesapearNotifier();
+    }
+    private async Task EditLabelQr()
+    {
+        var response = await AppService.UpdateLabelQr(_editLabel,editingId);
+        if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
+        {
+            notifierText = "Oops " + response.ErrorMessage;
+            _notifierClass = "alert alert-danger";
+        }
+        else
+        {
+            notifierText = response.ConfirmMessage;
+            _notifierClass = "alert alert-success";
+        }
+        CloseModal();
+        DesapearNotifier();
+    }
+    private async Task DeleteLabelQr()
+    {
+        var response = await AppService.DeleteLabelQr(deletingId);
+        if (!String.IsNullOrWhiteSpace(response.ErrorMessage))
+        {
+            notifierText = "Oops " + response.ErrorMessage;
+            _notifierClass = "alert alert-danger";
+        }
+        else
+        {
+            notifierText = response.ConfirmMessage;
+            _notifierClass = "alert alert-success";
+        }
+        CloseModal();
+        DesapearNotifier();
+    }
+    private async void DesapearNotifier()
+    {
+        await Task.Delay(3000);
+        _notifierClass = "";
+        notifierText = "";
+        StateHasChanged();
+    }
+
+
 }

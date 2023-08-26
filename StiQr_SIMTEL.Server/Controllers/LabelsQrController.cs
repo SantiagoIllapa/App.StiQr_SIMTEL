@@ -49,6 +49,18 @@ namespace StiQr_SIMTEL.Server.Controllers
             var response = await _labelQrService.GetLabelQrByPlate(plate);
             return HandleAPIResponse(response);
         }
+        [HttpPut("UpdateLabelQr/{id}")]
+        public async Task<IActionResult> UpdateLabelQr([FromBody] CreateLabelQrDTO label, int id)
+        {
+            var response = await _labelQrService.UpdateLabelQr(label,id);
+            return HandleAPIResponse(response);
+        }
+        [HttpDelete("DeleteLabelQr/{id}")]
+        public async Task<IActionResult> DeleteLabelQr( int id)
+        {
+            var response = await _labelQrService.DeleteLabelQr(id);
+            return HandleAPIResponse(response);
+        }
         [HttpPut("CheckHourLabelQr")]
         public async Task<IActionResult> CheckHourLabelQr([FromBody] CheckHourDTO checkHour)
         {

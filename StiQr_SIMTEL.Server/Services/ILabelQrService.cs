@@ -15,6 +15,8 @@ namespace StiQr_SIMTEL.Server.Services
         Task<ResponseAPI<GetLabelQrDTO>> GetLabelQrByPlate(string LabelPlate);
         Task<ResponseAPI<string>> RechargeCash(RechargeCashDTO rechargeDTO);
         Task<ResponseAPI<string>> CheckHourLabelQR(CheckHourDTO ChecklabelQrDTO);
+        Task<ResponseAPI<string>> UpdateLabelQr(CreateLabelQrDTO labelDto, int id);
+        Task<ResponseAPI<string>> DeleteLabelQr(int id);
 
     }
 }
